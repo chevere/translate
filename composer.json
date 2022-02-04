@@ -1,6 +1,6 @@
 {
-    "name": "chevere/%repoName%",
-    "description": "A chevere %repoName% component.",
+    "name": "chevere/translate",
+    "description": "A chevere translate component.",
     "homepage": "https://chevere.org",
     "type": "library",
     "license": "Apache-2.0",
@@ -12,7 +12,10 @@
         }
     ],
     "require": {
-        "chevere/chevere": "^0.1.x-dev"
+        "gettext/gettext": "^5.5",
+        "gettext/php-scanner": "^1.3",
+        "gettext/translator": "^1.0",
+        "chevere/chevere": "^0.2"
     },
     "require-dev": {
         "phpunit/phpunit": "^9.5",
@@ -23,12 +26,12 @@
             "src/functions.php"
         ],
         "psr-4": {
-            "Chevere\\%namespace%\\": "src/"
+            "Chevere\\Translate\\": "src/"
         }
     },
     "autoload-dev": {
         "psr-4": {
-            "Chevere\\Tests\\%namespace%\\": "tests/"
+            "Chevere\\Tests\\Translate\\": "tests/"
         }
     },
     "config": {
