@@ -1,7 +1,5 @@
 # Translate
 
-> 🔔 Subscribe to the [newsletter](https://chv.to/chevere-newsletter) to don't miss any update regarding Chevere.
-
 ![Chevere](LOGO.svg)
 
 ![Code size](https://img.shields.io/github/languages/code-size/chevere/translate?style=flat-square) [![Apache-2.0](https://img.shields.io/github/license/chevere/translate?style=flat-square)](LICENSE) [![Build](https://img.shields.io/github/workflow/status/chevere/translate/Test?style=flat-square)](https://github.com/chevere/translate/actions)
