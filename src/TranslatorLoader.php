@@ -41,8 +41,8 @@ final class TranslatorLoader implements TranslatorLoaderInterface
             );
         }
         $filename = match ($domain) {
-            '' => "${locale}.php",
-            default => "${domain}.php",
+            '' => "{$locale}.php",
+            default => "{$domain}.php",
         };
         $file = new File(
             $directory->path()
