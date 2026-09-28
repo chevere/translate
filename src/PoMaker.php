@@ -23,12 +23,9 @@ use Chevere\Writer\NullWriter;
 use Gettext\Generator\PoGenerator;
 use Gettext\Scanner\PhpScanner;
 use Gettext\Translations;
-use InvalidArgumentException;
-use LogicException;
 use RecursiveDirectoryIterator;
 use RecursiveIteratorIterator;
 use SplFileInfo;
-use Throwable;
 
 final class PoMaker implements PoMakerInterface
 {
@@ -75,15 +72,7 @@ final class PoMaker implements PoMakerInterface
             $file = $iterator->current();
             $pathName = $file->getPathname();
             $new->writer->write("- File {$pathName}\n");
-
-            try {
-                $new->phpScanner->scanFile($pathName);
-            } catch (Throwable $e) {
-                throw new LogicException(
-                    message: 'Unable to scan file',
-                    previous: $e,
-                );
-            }
+            $new->phpScanner->scanFile($pathName);
             $iterator->next();
         }
         $this->writer->write("💯 Done!\n");
@@ -112,15 +101,7 @@ final class PoMaker implements PoMakerInterface
          */
         foreach ($this->phpScanner->getTranslations() as $translations) {
             $translations->setLanguage($this->locale);
-
-            try {
-                $generator->generateFile($translations, $poFile->path()->__toString());
-            } catch (InvalidArgumentException $e) {
-                throw new LogicException(
-                    message: 'Unable to make translation',
-                    previous: $e,
-                );
-            }
+            $generator->generateFile($translations, $poFile->path()->__toString());
 
             break;
         }

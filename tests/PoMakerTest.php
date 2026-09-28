@@ -16,6 +16,7 @@ namespace Chevere\Tests;
 use BadMethodCallException;
 use Chevere\Filesystem\File;
 use Chevere\Translate\PoMaker;
+use Chevere\Writer\NullWriter;
 use PHPUnit\Framework\TestCase;
 use function Chevere\Filesystem\directoryForPath;
 
@@ -36,9 +37,11 @@ final class PoMakerTest extends TestCase
         $poFile = new File($poDir->path()->getChild('messages.po'));
         $poFile->removeIfExists();
         $dir = directoryForPath(__DIR__ . '/_resources/');
-        $poMaker = (new PoMaker($locale, 'messages'))
-            ->withScanFor($dir->getChild('user/'));
-        $poMaker->make($dir->getChild('make/'));
+        $poMaker = new PoMaker($locale, 'messages');
+        $this->assertEquals(new NullWriter(), $poMaker->writer());
+        $with = $poMaker->withScanFor($dir->getChild('user/'));
+        $this->assertNotSame($poMaker, $with);
+        $with->make($dir->getChild('make/'));
         $this->assertFileExists($poFile->path()->__toString());
         $makeDir->remove();
     }

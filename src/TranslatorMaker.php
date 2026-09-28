@@ -18,9 +18,6 @@ use Chevere\Filesystem\Interfaces\DirectoryInterface;
 use Chevere\Translate\Interfaces\TranslatorMakerInterface;
 use Gettext\Generator\ArrayGenerator;
 use Gettext\Loader\PoLoader;
-use InvalidArgumentException;
-use LogicException;
-use Throwable;
 
 final class TranslatorMaker implements TranslatorMakerInterface
 {
@@ -46,41 +43,24 @@ final class TranslatorMaker implements TranslatorMakerInterface
         return $this->targetDir;
     }
 
-    public function withMakeTranslation(string $locale, string $domain): self
+    public function withMake(string $locale, string $domain): self
     {
         $new = clone $this;
         $new->handleLocale($locale);
-        $new->localeSourceDir->assertExists();
         $poFile = new File(
             $new->localeSourceDir->path()
                 ->getChild("{$domain}.po")
         );
         $poFile->assertExists();
-
-        try {
-            $translations = $new->poLoader->loadFile($poFile->path()->__toString());
-        } catch (Throwable $e) {
-            throw new LogicException(
-                message: 'Unable to load translations',
-                previous: $e,
-            );
-        }
+        $translations = $new->poLoader->loadFile($poFile->path()->__toString());
         $new->localeTargetDir->createIfNotExists();
         $phpFile = new File(
             $new->localeTargetDir->path()
                 ->getChild("{$domain}.php")
         );
         $phpFile->removeIfExists();
-
-        try {
-            (new ArrayGenerator())
-                ->generateFile($translations, $phpFile->path()->__toString());
-        } catch (Throwable $e) {
-            throw new LogicException(
-                message: 'Unable to generate translations',
-                previous: $e,
-            );
-        }
+        (new ArrayGenerator())
+            ->generateFile($translations, $phpFile->path()->__toString());
         $phpFile->assertExists();
 
         return $new;
@@ -89,15 +69,7 @@ final class TranslatorMaker implements TranslatorMakerInterface
     private function handleLocale(string $locale): void
     {
         $this->localeSourceDir = $this->sourceDir->getChild($locale . '/');
-
-        try {
-            $this->localeSourceDir->assertExists();
-        } catch (Throwable $e) {
-            throw new InvalidArgumentException(
-                message: sprintf('Invalid locale `%s` provided', $locale),
-                previous: $e,
-            );
-        }
+        $this->localeSourceDir->assertExists();
         $this->localeTargetDir = $this->targetDir->getChild($locale . '/');
     }
 }

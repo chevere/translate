@@ -14,17 +14,17 @@ declare(strict_types=1);
 namespace Chevere\Tests;
 
 use Chevere\Filesystem\Exceptions\DirectoryNotExistsException;
+use Chevere\Filesystem\Exceptions\FileNotExistsException;
 use Chevere\Filesystem\File;
 use Chevere\Filesystem\Interfaces\DirectoryInterface;
 use Chevere\Translate\Interfaces\TranslatorMakerInterface;
 use Chevere\Translate\TranslatorMaker;
-use InvalidArgumentException;
 use PHPUnit\Framework\TestCase;
 use function Chevere\Filesystem\directoryForPath;
 
 final class TranslatorMakerTest extends TestCase
 {
-    public function testConstructSourceDirNotExists(): void
+    public function testConstructSourceDirectoryNotExists(): void
     {
         $this->expectException(DirectoryNotExistsException::class);
         new TranslatorMaker(
@@ -42,11 +42,18 @@ final class TranslatorMakerTest extends TestCase
         $this->assertSame($targetDir, $translatorMaker->targetDirectory());
     }
 
-    public function testWithLocaleInvalidArgument(): void
+    public function testWithMakeLocaleDirectoryNotExists(): void
     {
-        $this->expectException(InvalidArgumentException::class);
+        $this->expectException(DirectoryNotExistsException::class);
         $this->getTranslatorMaker()
-            ->withMakeTranslation(locale: '404', domain: 'messages');
+            ->withMake(locale: '404', domain: 'messages');
+    }
+
+    public function testWithMakeDomainFileNotExists(): void
+    {
+        $this->expectException(FileNotExistsException::class);
+        $this->getTranslatorMaker()
+            ->withMake(locale: 'en-US', domain: '404');
     }
 
     public function testMake(): void
@@ -58,9 +65,31 @@ final class TranslatorMakerTest extends TestCase
         foreach (['en-US', 'es-CL'] as $locale) {
             $file = new File($path->getChild("{$locale}/{$domain}.php"));
             $file->removeIfExists();
-            $translatorMaker = $translatorMaker
-                ->withMakeTranslation(locale: $locale, domain: $domain);
+            $with = $translatorMaker
+                ->withMake(locale: $locale, domain: $domain);
+            $this->assertNotSame($translatorMaker, $with);
             $this->assertFileExists($file->path()->__toString());
+        }
+    }
+
+    public function testMakeCreatesTargetLocaleDirectory(): void
+    {
+        $targetDir = $this->getDir('compiled-tmp/');
+        $targetDir->removeIfExists();
+        $translatorMaker = new TranslatorMaker($this->getDir('locales/'), $targetDir);
+        $localeDir = $targetDir->getChild('en-US/');
+        $this->assertFalse($localeDir->exists());
+
+        try {
+            $translatorMaker->withMake(locale: 'en-US', domain: 'messages');
+            $this->assertTrue($localeDir->exists());
+            $this->assertFileExists(
+                $localeDir->path()
+                    ->getChild('messages.php')
+                    ->__toString()
+            );
+        } finally {
+            $targetDir->removeIfExists();
         }
     }
 

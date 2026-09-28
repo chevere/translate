@@ -20,7 +20,6 @@ use DomainException;
 use Gettext\Translator;
 use Gettext\TranslatorInterface;
 use InvalidArgumentException;
-use LogicException;
 
 final class TranslatorLoader implements TranslatorLoaderInterface
 {
@@ -53,14 +52,7 @@ final class TranslatorLoader implements TranslatorLoaderInterface
             );
         }
 
-        try {
-            return (new Translator())
-                ->loadTranslations($file->path()->__toString());
-        } catch (InvalidArgumentException $e) {
-            throw new LogicException(
-                message: 'Unable to load translator',
-                previous: $e,
-            );
-        }
+        return (new Translator())
+            ->loadTranslations($file->path()->__toString());
     }
 }

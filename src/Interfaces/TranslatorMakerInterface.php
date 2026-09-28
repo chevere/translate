@@ -24,5 +24,5 @@ interface TranslatorMakerInterface
 
     public function targetDirectory(): DirectoryInterface;
 
-    public function withMakeTranslation(string $locale, string $domain): self;
+    public function withMake(string $locale, string $domain): self;
 }
