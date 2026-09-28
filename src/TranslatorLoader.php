@@ -16,7 +16,6 @@ namespace Chevere\Translate;
 use Chevere\Filesystem\File;
 use Chevere\Filesystem\Interfaces\DirectoryInterface;
 use Chevere\Translate\Interfaces\TranslatorLoaderInterface;
-use DomainException;
 use Gettext\Translator;
 use Gettext\TranslatorInterface;
 use InvalidArgumentException;
@@ -49,7 +48,7 @@ final class TranslatorLoader implements TranslatorLoaderInterface
                 ->getChild($filename)
         );
         if (! $file->exists()) {
-            throw new DomainException(
+            throw new InvalidArgumentException(
                 sprintf("File `%s` doesn't exits", $filename)
             );
         }

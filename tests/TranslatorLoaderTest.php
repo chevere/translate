@@ -16,7 +16,6 @@ namespace Chevere\Tests;
 use Chevere\Filesystem\Exceptions\DirectoryNotExistsException;
 use Chevere\Translate\Interfaces\TranslatorLoaderInterface;
 use Chevere\Translate\TranslatorLoader;
-use DomainException;
 use Gettext\Translator;
 use InvalidArgumentException;
 use PHPUnit\Framework\TestCase;
@@ -49,7 +48,7 @@ final class TranslatorLoaderTest extends TestCase
     public function testGetTranslatorInvalidDomain(): void
     {
         $loader = $this->getTranslationLoad();
-        $this->expectException(DomainException::class);
+        $this->expectException(InvalidArgumentException::class);
         $loader->getTranslator('es-CL', 'invalid');
     }
 
@@ -60,6 +59,25 @@ final class TranslatorLoaderTest extends TestCase
             Translator::class,
             $loader->getTranslator('es-CL', 'messages')
         );
+    }
+
+    public function testGetTranslatorWithoutDomain(): void
+    {
+        $loader = new TranslatorLoader(
+            directoryForPath(__DIR__ . '/_resources/compiled-domainless/')
+        );
+        $translator = $loader->getTranslator('es-CL');
+        $this->assertInstanceOf(Translator::class, $translator);
+        $this->assertSame('Idiomas', $translator->gettext('Language'));
+    }
+
+    public function testGetTranslatorWithoutDomainInvalidLocale(): void
+    {
+        $loader = new TranslatorLoader(
+            directoryForPath(__DIR__ . '/_resources/compiled-domainless/')
+        );
+        $this->expectException(InvalidArgumentException::class);
+        $loader->getTranslator('es-404');
     }
 
     private function getTranslationLoad(): TranslatorLoaderInterface
