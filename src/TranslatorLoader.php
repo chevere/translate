@@ -36,7 +36,7 @@ final class TranslatorLoader implements TranslatorLoaderInterface
         };
         if (! $directory->exists()) {
             throw new InvalidArgumentException(
-                sprintf("Directory `%s` doesn't exits", $locale)
+                sprintf("Directory `%s` doesn't exits", $directory->path())
             );
         }
         $filename = match ($domain) {
@@ -49,7 +49,7 @@ final class TranslatorLoader implements TranslatorLoaderInterface
         );
         if (! $file->exists()) {
             throw new InvalidArgumentException(
-                sprintf("File `%s` doesn't exits", $filename)
+                sprintf("File `%s` doesn't exits", $file->path())
             );
         }
 

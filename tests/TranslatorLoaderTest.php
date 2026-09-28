@@ -14,7 +14,7 @@ declare(strict_types=1);
 namespace Chevere\Tests;
 
 use Chevere\Filesystem\Exceptions\DirectoryNotExistsException;
-use Chevere\Translate\Interfaces\TranslatorLoaderInterface;
+use Chevere\Filesystem\Interfaces\DirectoryInterface;
 use Chevere\Translate\TranslatorLoader;
 use Gettext\Translator;
 use InvalidArgumentException;
@@ -40,21 +40,36 @@ final class TranslatorLoaderTest extends TestCase
 
     public function testGetTranslatorInvalidLocale(): void
     {
-        $loader = $this->getTranslationLoad();
+        $directory = $this->getDirectory();
+        $childDirectory = $directory->getChild('es-404/');
+        $loader = new TranslatorLoader($directory);
         $this->expectException(InvalidArgumentException::class);
+        $this->expectExceptionMessage(
+            <<<PLAIN
+            Directory `{$childDirectory->path()}` doesn't exits
+            PLAIN
+        );
         $loader->getTranslator('es-404', 'messages');
     }
 
     public function testGetTranslatorInvalidDomain(): void
     {
-        $loader = $this->getTranslationLoad();
+        $directory = $this->getDirectory();
+        $childDirectory = $directory->getChild('es-CL/');
+        $loader = new TranslatorLoader($directory);
         $this->expectException(InvalidArgumentException::class);
+        $this->expectExceptionMessage(
+            <<<PLAIN
+            File `{$childDirectory->path()}invalid.php` doesn't exits
+            PLAIN
+        );
         $loader->getTranslator('es-CL', 'invalid');
     }
 
     public function testGetTranslator(): void
     {
-        $loader = $this->getTranslationLoad();
+        $directory = $this->getDirectory();
+        $loader = new TranslatorLoader($directory);
         $this->assertInstanceOf(
             Translator::class,
             $loader->getTranslator('es-CL', 'messages')
@@ -80,10 +95,8 @@ final class TranslatorLoaderTest extends TestCase
         $loader->getTranslator('es-404');
     }
 
-    private function getTranslationLoad(): TranslatorLoaderInterface
+    private function getDirectory(): DirectoryInterface
     {
-        return new TranslatorLoader(
-            directoryForPath(__DIR__ . '/_resources/compiled/')
-        );
+        return directoryForPath(__DIR__ . '/_resources/compiled/');
     }
 }
