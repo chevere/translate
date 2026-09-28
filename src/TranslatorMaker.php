@@ -14,39 +14,34 @@ declare(strict_types=1);
 namespace Chevere\Translate;
 
 use Chevere\Filesystem\File;
-use Chevere\Filesystem\Interfaces\DirInterface;
-use Chevere\Message\Message;
-use Chevere\Throwable\Exceptions\InvalidArgumentException;
-use Chevere\Throwable\Exceptions\LogicException;
+use Chevere\Filesystem\Interfaces\DirectoryInterface;
 use Chevere\Translate\Interfaces\TranslatorMakerInterface;
 use Gettext\Generator\ArrayGenerator;
 use Gettext\Loader\PoLoader;
+use InvalidArgumentException;
+use LogicException;
 use Throwable;
 
 final class TranslatorMaker implements TranslatorMakerInterface
 {
-    private string $locale;
+    private DirectoryInterface $localeSourceDir;
 
-    private DirInterface $localeSourceDir;
-
-    private DirInterface $localeTargetDir;
-
-    private PoLoader $poLoader;
+    private DirectoryInterface $localeTargetDir;
 
     public function __construct(
-        private DirInterface $sourceDir,
-        private DirInterface $targetDir
+        private DirectoryInterface $sourceDir,
+        private DirectoryInterface $targetDir,
+        private PoLoader $poLoader = new PoLoader(),
     ) {
         $this->sourceDir->assertExists();
-        $this->poLoader = new PoLoader();
     }
 
-    public function sourceDir(): DirInterface
+    public function sourceDirectory(): DirectoryInterface
     {
         return $this->sourceDir;
     }
 
-    public function targetDir(): DirInterface
+    public function targetDirectory(): DirectoryInterface
     {
         return $this->targetDir;
     }
@@ -57,39 +52,35 @@ final class TranslatorMaker implements TranslatorMakerInterface
         $new->handleLocale($locale);
         $new->localeSourceDir->assertExists();
         $poFile = new File(
-            $new->localeSourceDir->path()->getChild("${domain}.po")
+            $new->localeSourceDir->path()
+                ->getChild("{$domain}.po")
         );
         $poFile->assertExists();
 
         try {
             $translations = $new->poLoader->loadFile($poFile->path()->__toString());
-        }
-        // @codeCoverageIgnoreStart
-        catch (Throwable $e) {
+        } catch (Throwable $e) {
             throw new LogicException(
+                message: 'Unable to load translations',
                 previous: $e,
-                message: new Message('Unable to load translations.')
             );
         }
-        // @codeCoverageIgnoreEnd
         $new->localeTargetDir->createIfNotExists();
         $phpFile = new File(
-            $new->localeTargetDir->path()->getChild("${domain}.php")
+            $new->localeTargetDir->path()
+                ->getChild("{$domain}.php")
         );
         $phpFile->removeIfExists();
 
         try {
             (new ArrayGenerator())
                 ->generateFile($translations, $phpFile->path()->__toString());
-        }
-        // @codeCoverageIgnoreStart
-        catch (Throwable $e) {
+        } catch (Throwable $e) {
             throw new LogicException(
+                message: 'Unable to generate translations',
                 previous: $e,
-                message: new Message('Unable to generate translations.')
             );
         }
-        // @codeCoverageIgnoreEnd
         $phpFile->assertExists();
 
         return $new;
@@ -103,12 +94,10 @@ final class TranslatorMaker implements TranslatorMakerInterface
             $this->localeSourceDir->assertExists();
         } catch (Throwable $e) {
             throw new InvalidArgumentException(
+                message: sprintf('Invalid locale `%s` provided', $locale),
                 previous: $e,
-                message: (new Message('Invalid locale %locale% provided'))
-                    ->code('%locale%', $locale)
             );
         }
         $this->localeTargetDir = $this->targetDir->getChild($locale . '/');
-        $this->locale = $locale;
     }
 }

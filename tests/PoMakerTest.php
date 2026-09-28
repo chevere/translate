@@ -11,13 +11,13 @@
 
 declare(strict_types=1);
 
-namespace Chevere\Tests\Translator;
+namespace Chevere\Tests;
 
 use BadMethodCallException;
-use function Chevere\Filesystem\dirForPath;
 use Chevere\Filesystem\File;
 use Chevere\Translate\PoMaker;
 use PHPUnit\Framework\TestCase;
+use function Chevere\Filesystem\directoryForPath;
 
 final class PoMakerTest extends TestCase
 {
@@ -25,17 +25,17 @@ final class PoMakerTest extends TestCase
     {
         $this->expectException(BadMethodCallException::class);
         (new PoMaker('en-US', 'messages'))
-            ->make(dirForPath(__DIR__ . '/'));
+            ->make(directoryForPath(__DIR__ . '/'));
     }
 
     public function testMakePo(): void
     {
         $locale = 'en-US';
-        $makeDir = dirForPath(__DIR__ . "/_resources/make/");
-        $poDir = $makeDir->getChild("$locale/");
-        $poFile = new File($poDir->path()->getChild("messages.po"));
+        $makeDir = directoryForPath(__DIR__ . '/_resources/make/');
+        $poDir = $makeDir->getChild("{$locale}/");
+        $poFile = new File($poDir->path()->getChild('messages.po'));
         $poFile->removeIfExists();
-        $dir = dirForPath(__DIR__ . '/_resources/');
+        $dir = directoryForPath(__DIR__ . '/_resources/');
         $poMaker = (new PoMaker($locale, 'messages'))
             ->withScanFor($dir->getChild('user/'));
         $poMaker->make($dir->getChild('make/'));

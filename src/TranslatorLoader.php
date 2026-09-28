@@ -14,55 +14,53 @@ declare(strict_types=1);
 namespace Chevere\Translate;
 
 use Chevere\Filesystem\File;
-use Chevere\Filesystem\Interfaces\DirInterface;
-use Chevere\Message\Message;
-use Chevere\Throwable\Exceptions\DomainException;
-use Chevere\Throwable\Exceptions\InvalidArgumentException;
+use Chevere\Filesystem\Interfaces\DirectoryInterface;
 use Chevere\Translate\Interfaces\TranslatorLoaderInterface;
+use DomainException;
 use Gettext\Translator;
 use Gettext\TranslatorInterface;
+use InvalidArgumentException;
 use LogicException;
 
 final class TranslatorLoader implements TranslatorLoaderInterface
 {
     public function __construct(
-        private DirInterface $dir
+        private DirectoryInterface $directory
     ) {
-        $this->dir->assertExists();
+        $this->directory->assertExists();
     }
 
-    public function dir(): DirInterface
+    public function directory(): DirectoryInterface
     {
-        return $this->dir;
+        return $this->directory;
     }
 
     public function getTranslator(string $locale, string $domain): TranslatorInterface
     {
-        $dir = $this->dir->getChild($locale . '/');
-        if (!$dir->exists()) {
+        $dir = $this->directory->getChild($locale . '/');
+        if (! $dir->exists()) {
             throw new InvalidArgumentException(
-                (new Message("Locale %locale% doesn't exits"))
-                    ->code('%locale%', $locale)
+                sprintf("Locale `%s` doesn't exits", $locale)
             );
         }
         $file = new File(
-            $dir->path()->getChild("${domain}.php")
+            $dir->path()
+                ->getChild("${domain}.php")
         );
-        if (!$file->exists()) {
+        if (! $file->exists()) {
             throw new DomainException(
-                (new Message("Domain %domain% doesn't exits"))
-                    ->code('%domain%', $domain)
+                sprintf("Domain `%s` doesn't exits", $domain)
             );
         }
 
         try {
             return (new Translator())
                 ->loadTranslations($file->path()->__toString());
+        } catch (InvalidArgumentException $e) {
+            throw new LogicException(
+                message: 'Unable to load translator',
+                previous: $e,
+            );
         }
-        // @codeCoverageIgnoreStart
-        catch (\InvalidArgumentException $e) {
-            throw new LogicException(previous: $e, message: new Message('Unable to load translator.'));
-        }
-        // @codeCoverageIgnoreEnd
     }
 }

@@ -11,23 +11,26 @@
 
 declare(strict_types=1);
 
-namespace Chevere\Tests\Translator;
+namespace Chevere\Tests;
 
-use function Chevere\Filesystem\dirForPath;
-use Chevere\Filesystem\Exceptions\DirNotExistsException;
+use Chevere\Filesystem\Exceptions\DirectoryNotExistsException;
 use Chevere\Filesystem\File;
-use Chevere\Filesystem\Interfaces\DirInterface;
-use Chevere\Throwable\Exceptions\InvalidArgumentException;
+use Chevere\Filesystem\Interfaces\DirectoryInterface;
 use Chevere\Translate\Interfaces\TranslatorMakerInterface;
 use Chevere\Translate\TranslatorMaker;
+use InvalidArgumentException;
 use PHPUnit\Framework\TestCase;
+use function Chevere\Filesystem\directoryForPath;
 
 final class TranslatorMakerTest extends TestCase
 {
     public function testConstructSourceDirNotExists(): void
     {
-        $this->expectException(DirNotExistsException::class);
-        new TranslatorMaker($this->getDir('404/'), $this->getDir('compiled/'));
+        $this->expectException(DirectoryNotExistsException::class);
+        new TranslatorMaker(
+            $this->getDir('404/'),
+            $this->getDir('compiled/')
+        );
     }
 
     public function testConstruct(): void
@@ -35,8 +38,8 @@ final class TranslatorMakerTest extends TestCase
         $sourceDir = $this->getDir('locales/');
         $targetDir = $this->getDir('compiled/');
         $translatorMaker = new TranslatorMaker($sourceDir, $targetDir);
-        $this->assertSame($sourceDir, $translatorMaker->sourceDir());
-        $this->assertSame($targetDir, $translatorMaker->targetDir());
+        $this->assertSame($sourceDir, $translatorMaker->sourceDirectory());
+        $this->assertSame($targetDir, $translatorMaker->targetDirectory());
     }
 
     public function testWithLocaleInvalidArgument(): void
@@ -49,10 +52,11 @@ final class TranslatorMakerTest extends TestCase
     public function testMake(): void
     {
         $translatorMaker = $this->getTranslatorMaker();
-        $path = $translatorMaker->targetDir()->path();
+        $path = $translatorMaker->targetDirectory()
+            ->path();
         $domain = 'messages';
         foreach (['en-US', 'es-CL'] as $locale) {
-            $file = new File($path->getChild("${locale}/${domain}.php"));
+            $file = new File($path->getChild("{$locale}/{$domain}.php"));
             $file->removeIfExists();
             $translatorMaker = $translatorMaker
                 ->withMakeTranslation(locale: $locale, domain: $domain);
@@ -65,8 +69,8 @@ final class TranslatorMakerTest extends TestCase
         return new TranslatorMaker($this->getDir('locales/'), $this->getDir('compiled/'));
     }
 
-    private function getDir(string $child): DirInterface
+    private function getDir(string $child): DirectoryInterface
     {
-        return dirForPath(__DIR__ . '/_resources/')->getChild($child);
+        return directoryForPath(__DIR__ . '/_resources/')->getChild($child);
     }
 }

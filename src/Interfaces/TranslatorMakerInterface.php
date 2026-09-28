@@ -13,18 +13,16 @@ declare(strict_types=1);
 
 namespace Chevere\Translate\Interfaces;
 
-use Chevere\Filesystem\Interfaces\DirInterface;
+use Chevere\Filesystem\Interfaces\DirectoryInterface;
 
 /**
  * Describes the component in charge of make a translator.
  */
 interface TranslatorMakerInterface
 {
-    public function __construct(DirInterface $sourceDir, DirInterface $targetDir);
+    public function sourceDirectory(): DirectoryInterface;
 
-    public function sourceDir(): DirInterface;
-
-    public function targetDir(): DirInterface;
+    public function targetDirectory(): DirectoryInterface;
 
     public function withMakeTranslation(string $locale, string $domain): self;
 }

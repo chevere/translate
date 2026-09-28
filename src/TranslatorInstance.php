@@ -13,13 +13,12 @@ declare(strict_types=1);
 
 namespace Chevere\Translate;
 
-use Chevere\Message\Message;
-use Chevere\Throwable\Exceptions\LogicException;
 use Gettext\TranslatorInterface;
+use LogicException;
 
 final class TranslatorInstance
 {
-    private static ?TranslatorInterface $instance;
+    private static TranslatorInterface $instance;
 
     public function __construct(TranslatorInterface $translator)
     {
@@ -28,10 +27,8 @@ final class TranslatorInstance
 
     public static function get(): TranslatorInterface
     {
-        if (!isset(self::$instance)) {
-            throw new LogicException(
-                new Message('No Translator instance present')
-            );
+        if (! isset(self::$instance)) {
+            throw new LogicException('No Translator instance present');
         }
 
         return self::$instance;

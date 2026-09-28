@@ -13,23 +13,18 @@ declare(strict_types=1);
 
 namespace Chevere\Translate\Interfaces;
 
-use Chevere\Filesystem\Exceptions\DirNotExistsException;
-use Chevere\Filesystem\Interfaces\DirInterface;
-use Chevere\Throwable\Exceptions\DomainException;
-use Chevere\Throwable\Exceptions\InvalidArgumentException;
+use Chevere\Filesystem\Interfaces\DirectoryInterface;
+use DomainException;
 use Gettext\TranslatorInterface;
+use InvalidArgumentException;
+use LogicException;
 
 /**
  * Describes the component in charge of load php translations.
  */
 interface TranslatorLoaderInterface
 {
-    /**
-     * @throws DirNotExistsException
-     */
-    public function __construct(DirInterface $dir);
-
-    public function dir(): DirInterface;
+    public function directory(): DirectoryInterface;
 
     /**
      * @throws InvalidArgumentException If $locale doesn't exists.

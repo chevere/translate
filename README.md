@@ -1,10 +1,20 @@
 # Translate
 
-![Chevere](LOGO.svg)
+![Chevere](chevere.svg)
 
-![Code size](https://img.shields.io/github/languages/code-size/chevere/translate?style=flat-square) [![Apache-2.0](https://img.shields.io/github/license/chevere/translate?style=flat-square)](LICENSE) [![Build](https://img.shields.io/github/workflow/status/chevere/translate/Test?style=flat-square)](https://github.com/chevere/translate/actions)
+[![Build](https://img.shields.io/github/actions/workflow/status/chevere/translate/test.yml?branch=1.0&style=flat-square)](https://github.com/chevere/translate/actions)
+![Code size](https://img.shields.io/github/languages/code-size/chevere/translate?style=flat-square)
+[![Apache-2.0](https://img.shields.io/github/license/chevere/translate?style=flat-square)](LICENSE)
+[![PHPStan](https://img.shields.io/badge/PHPStan-level%209-blueviolet?style=flat-square)](https://phpstan.org/)
+[![Mutation testing badge](https://img.shields.io/endpoint?style=flat-square&url=https%3A%2F%2Fbadge-api.stryker-mutator.io%2Fgithub.com%2Fchevere%2Fworkflow%2F1.0)](https://dashboard.stryker-mutator.io/reports/github.com/chevere/translate/1.0)
 
-[![Quality Gate Status](https://sonarcloud.io/api/project_badges/measure?project=chevere_translate&metric=alert_status)](https://sonarcloud.io/dashboard?id=chevere_translate) [![Maintainability Rating](https://sonarcloud.io/api/project_badges/measure?project=chevere_translate&metric=sqale_rating)](https://sonarcloud.io/dashboard?id=chevere_translate) [![Reliability Rating](https://sonarcloud.io/api/project_badges/measure?project=chevere_translate&metric=reliability_rating)](https://sonarcloud.io/dashboard?id=chevere_translate) [![Security Rating](https://sonarcloud.io/api/project_badges/measure?project=chevere_translate&metric=security_rating)](https://sonarcloud.io/dashboard?id=chevere_translate) [![Coverage](https://sonarcloud.io/api/project_badges/measure?project=chevere_translate&metric=coverage)](https://sonarcloud.io/dashboard?id=chevere_translate) [![Technical Debt](https://sonarcloud.io/api/project_badges/measure?project=chevere_translate&metric=sqale_index)](https://sonarcloud.io/dashboard?id=chevere_translate) [![CodeFactor](https://www.codefactor.io/repository/github/chevere/translate/badge)](https://www.codefactor.io/repository/github/chevere/translate) [![Codacy Badge](https://app.codacy.com/project/badge/Grade/1490e2a611a24a0b93ca81f4d4cf9cde)](https://www.codacy.com/gh/chevere/translate/dashboard)
+[![Quality Gate Status](https://sonarcloud.io/api/project_badges/measure?project=chevere_translate&metric=alert_status)](https://sonarcloud.io/dashboard?id=chevere_translate)
+[![Maintainability Rating](https://sonarcloud.io/api/project_badges/measure?project=chevere_translate&metric=sqale_rating)](https://sonarcloud.io/dashboard?id=chevere_translate)
+[![Reliability Rating](https://sonarcloud.io/api/project_badges/measure?project=chevere_translate&metric=reliability_rating)](https://sonarcloud.io/dashboard?id=chevere_translate)
+[![Security Rating](https://sonarcloud.io/api/project_badges/measure?project=chevere_translate&metric=security_rating)](https://sonarcloud.io/dashboard?id=chevere_translate)
+[![Coverage](https://sonarcloud.io/api/project_badges/measure?project=chevere_translate&metric=coverage)](https://sonarcloud.io/dashboard?id=chevere_translate)
+[![Technical Debt](https://sonarcloud.io/api/project_badges/measure?project=chevere_translate&metric=sqale_index)](https://sonarcloud.io/dashboard?id=chevere_translate)
+[![CodeFactor](https://www.codefactor.io/repository/github/chevere/translate/badge)](https://www.codefactor.io/repository/github/chevere/translate)
 
 The chevere translate component.
 

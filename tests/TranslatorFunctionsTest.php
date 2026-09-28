@@ -11,18 +11,18 @@
 
 declare(strict_types=1);
 
-namespace Chevere\Tests\Translator;
+namespace Chevere\Tests;
 
-use function Chevere\Filesystem\dirForPath;
+use Chevere\Translate\TranslatorInstance;
+use Chevere\Translate\TranslatorLoader;
+use PHPUnit\Framework\TestCase;
+use function Chevere\Filesystem\directoryForPath;
 use function Chevere\Translate\__;
 use function Chevere\Translate\__f;
 use function Chevere\Translate\__n;
 use function Chevere\Translate\__nf;
 use function Chevere\Translate\__nt;
 use function Chevere\Translate\__t;
-use Chevere\Translate\TranslatorInstance;
-use Chevere\Translate\TranslatorLoader;
-use PHPUnit\Framework\TestCase;
 
 final class TranslatorFunctionsTest extends TestCase
 {
@@ -31,12 +31,12 @@ final class TranslatorFunctionsTest extends TestCase
         $this->assertSame('Language', __('Language'));
         $username = 'Rodolfo';
         $this->assertSame(
-            "${username}'s Images",
+            "{$username}'s Images",
             __f("%s's Images", $username)
         );
         $username = 'Rudy';
         $this->assertSame(
-            "${username}'s Images",
+            "{$username}'s Images",
             __t("%s's Images", [
                 '%s' => $username,
             ])
@@ -45,7 +45,7 @@ final class TranslatorFunctionsTest extends TestCase
         $this->assertSame('2 seconds', __nf('%d second', '%d seconds', 2, 2));
         $value = 123;
         $this->assertSame(
-            "${value} seconds",
+            "{$value} seconds",
             __nt('%d second', '%d seconds', $value, [
                 '%d' => $value,
             ])
@@ -54,17 +54,17 @@ final class TranslatorFunctionsTest extends TestCase
 
     public function testTranslator(): void
     {
-        $loader = new TranslatorLoader(dirForPath(__DIR__ . '/_resources/compiled/'));
+        $loader = new TranslatorLoader(directoryForPath(__DIR__ . '/_resources/compiled/'));
         new TranslatorInstance($loader->getTranslator('es-CL', 'messages'));
         $this->assertSame('Idiomas', __('Language'));
         $username = 'Rodolfo';
         $this->assertSame(
-            "Imágenes de ${username}",
+            "Imágenes de {$username}",
             __f("%s's Images", $username)
         );
         $username = 'Rudy';
         $this->assertSame(
-            "Imágenes de ${username}",
+            "Imágenes de {$username}",
             __t("%s's Images", [
                 '%s' => $username,
             ])
@@ -73,7 +73,7 @@ final class TranslatorFunctionsTest extends TestCase
         $this->assertSame('2 segundos', __nf('%d second', '%d seconds', 2, 2));
         $value = 123;
         $this->assertSame(
-            "${value} segundos",
+            "{$value} segundos",
             __nt('%d second', '%d segundos', $value, [
                 '%d' => $value,
             ])

@@ -13,30 +13,25 @@ declare(strict_types=1);
 
 namespace Chevere\Translate;
 
+use BadMethodCallException;
 use Chevere\Filesystem\File;
-use Chevere\Filesystem\Interfaces\DirInterface;
-use function Chevere\Iterator\recursiveDirectoryIteratorFor;
+use Chevere\Filesystem\Interfaces\DirectoryInterface;
 use Chevere\Iterator\RecursiveFileFilterIterator;
-use Chevere\Message\Message;
-use Chevere\Throwable\Exceptions\BadMethodCallException;
-use Chevere\Throwable\Exceptions\LogicException;
 use Chevere\Translate\Interfaces\PoMakerInterface;
+use Chevere\Writer\Interfaces\WriterInterface;
 use Chevere\Writer\NullWriter;
-use Chevere\Writer\Traits\WriterTrait;
 use Gettext\Generator\PoGenerator;
 use Gettext\Scanner\PhpScanner;
 use Gettext\Translations;
+use InvalidArgumentException;
+use LogicException;
 use RecursiveDirectoryIterator;
 use RecursiveIteratorIterator;
+use SplFileInfo;
 use Throwable;
 
-/**
- * @method self withWriter(WriterInterface $writer)
- */
 final class PoMaker implements PoMakerInterface
 {
-    use WriterTrait;
-
     public const FUNCTIONS = [
         '__' => 'gettext',
         '__f' => 'gettext',
@@ -46,22 +41,27 @@ final class PoMaker implements PoMakerInterface
         '__nt' => 'ngettext',
     ];
 
-    private DirInterface $sourceDir;
+    private DirectoryInterface $sourceDir;
 
     private PhpScanner $phpScanner;
 
     public function __construct(
         private string $locale,
-        private string $domain
+        private string $domain,
+        private WriterInterface $writer = new NullWriter()
     ) {
-        $this->writer = new NullWriter();
     }
 
-    public function withScanFor(DirInterface $sourceDir): self
+    public function writer(): WriterInterface
+    {
+        return $this->writer;
+    }
+
+    public function withScanFor(DirectoryInterface $sourceDirectory): PoMakerInterface
     {
         $new = clone $this;
-        $sourceDir->assertExists();
-        $new->sourceDir = $sourceDir;
+        $sourceDirectory->assertExists();
+        $new->sourceDir = $sourceDirectory;
         $new->phpScanner = new PhpScanner(Translations::create($new->domain));
         $new->phpScanner->setDefaultDomain($new->domain);
         $new->phpScanner->setFunctions(self::FUNCTIONS);
@@ -71,20 +71,19 @@ final class PoMaker implements PoMakerInterface
         );
         $iterator->rewind();
         while ($iterator->valid()) {
-            $pathName = $iterator->current()->getPathName();
-            $new->writer->write("- File ${pathName}\n");
+            /** @var SplFileInfo $file */
+            $file = $iterator->current();
+            $pathName = $file->getPathname();
+            $new->writer->write("- File {$pathName}\n");
 
             try {
                 $new->phpScanner->scanFile($pathName);
-            }
-            // @codeCoverageIgnoreStart
-            catch (Throwable $e) {
+            } catch (Throwable $e) {
                 throw new LogicException(
+                    message: 'Unable to scan file',
                     previous: $e,
-                    message: new Message('Unable to scan file.')
                 );
             }
-            // @codeCoverageIgnoreEnd
             $iterator->next();
         }
         $this->writer->write("💯 Done!\n");
@@ -92,19 +91,21 @@ final class PoMaker implements PoMakerInterface
         return $new;
     }
 
-    public function make(DirInterface $targetDir): void
+    public function make(DirectoryInterface $targetDirectory): void
     {
-        if (!isset($this->phpScanner)) {
+        if (! isset($this->phpScanner)) {
             throw new BadMethodCallException(
-                (new Message('Unable to call %method% without a %type% instance'))
-                    ->code('%method%', __METHOD__)
-                    ->code('%type%', PhpScanner::class)
+                sprintf(
+                    'Unable to call `%s` without a `%s` instance',
+                    __METHOD__,
+                    PhpScanner::class
+                )
             );
         }
         $generator = new PoGenerator();
-        $targetDir = $targetDir->getChild($this->locale . '/');
-        $targetDir->createIfNotExists();
-        $poFile = new File($targetDir->path()->getChild($this->domain . '.po'));
+        $targetDirectory = $targetDirectory->getChild($this->locale . '/');
+        $targetDirectory->createIfNotExists();
+        $poFile = new File($targetDirectory->path()->getChild($this->domain . '.po'));
         $poFile->removeIfExists();
         /**
          * @var Translations $translations
@@ -114,25 +115,29 @@ final class PoMaker implements PoMakerInterface
 
             try {
                 $generator->generateFile($translations, $poFile->path()->__toString());
-            }
-            // @codeCoverageIgnoreStart
-            catch (\InvalidArgumentException $e) {
+            } catch (InvalidArgumentException $e) {
                 throw new LogicException(
+                    message: 'Unable to make translation',
                     previous: $e,
-                    message: new Message('Unable to make translation.')
                 );
             }
-            // @codeCoverageIgnoreEnd
 
             break;
         }
     }
 
+    /**
+     * @return RecursiveIteratorIterator<RecursiveFileFilterIterator>
+     */
     private function getIterator(): RecursiveIteratorIterator
     {
         $iterator = new RecursiveIteratorIterator(
             new RecursiveFileFilterIterator(
-                recursiveDirectoryIteratorFor($this->sourceDir, RecursiveDirectoryIterator::SKIP_DOTS),
+                new RecursiveDirectoryIterator(
+                    $this->sourceDir->path()
+                        ->__toString(),
+                    RecursiveDirectoryIterator::SKIP_DOTS
+                ),
                 '.php'
             )
         );

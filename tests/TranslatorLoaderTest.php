@@ -11,32 +11,32 @@
 
 declare(strict_types=1);
 
-namespace Chevere\Tests\Translator;
+namespace Chevere\Tests;
 
-use function Chevere\Filesystem\dirForPath;
-use Chevere\Filesystem\Exceptions\DirNotExistsException;
+use Chevere\Filesystem\Exceptions\DirectoryNotExistsException;
 use Chevere\Translate\Interfaces\TranslatorLoaderInterface;
 use Chevere\Translate\TranslatorLoader;
 use DomainException;
 use Gettext\Translator;
 use InvalidArgumentException;
 use PHPUnit\Framework\TestCase;
+use function Chevere\Filesystem\directoryForPath;
 
 final class TranslatorLoaderTest extends TestCase
 {
     public function testConstructInvalidArgument(): void
     {
-        $this->expectException(DirNotExistsException::class);
-        $loader = new TranslatorLoader(
-            dirForPath(__DIR__ . '/404/')
+        $this->expectException(DirectoryNotExistsException::class);
+        new TranslatorLoader(
+            directoryForPath(__DIR__ . '/404/')
         );
     }
 
     public function testConstruct(): void
     {
-        $dir = dirForPath(__DIR__ . '/_resources/compiled/');
+        $dir = directoryForPath(__DIR__ . '/_resources/compiled/');
         $loader = new TranslatorLoader($dir);
-        $this->assertSame($dir, $loader->dir());
+        $this->assertSame($dir, $loader->directory());
     }
 
     public function testGetTranslatorInvalidLocale(): void
@@ -65,7 +65,7 @@ final class TranslatorLoaderTest extends TestCase
     private function getTranslationLoad(): TranslatorLoaderInterface
     {
         return new TranslatorLoader(
-            dirForPath(__DIR__ . '/_resources/compiled/')
+            directoryForPath(__DIR__ . '/_resources/compiled/')
         );
     }
 }

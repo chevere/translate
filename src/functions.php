@@ -13,17 +13,15 @@ declare(strict_types=1);
 
 namespace Chevere\Translate;
 
-// @codeCoverageIgnoreStart
-
-use Chevere\Throwable\Exceptions\LogicException;
 use Gettext\Translator;
 use Gettext\TranslatorInterface;
+use LogicException;
 
 function getTranslator(): TranslatorInterface
 {
     try {
         return TranslatorInstance::get();
-    } catch (LogicException $e) {
+    } catch (LogicException) {
         return new Translator();
     }
 }
@@ -31,47 +29,49 @@ function getTranslator(): TranslatorInterface
 /**
  * Translates a string.
  */
-function __(string $message)
+function __(string $message): string
 {
     return getTranslator()->gettext($message);
 }
 /**
  * Translates a formatted string with `sprintf`.
  */
-function __f(string $message, ...$arguments)
+function __f(string $message, bool|float|int|string|null ...$values): string
 {
-    return sprintf(__($message), ...$arguments);
+    return sprintf(__($message), ...$values);
 }
 /**
  * Translates a formatted string with `strtr`.
+ *
+ * @param array<string, string> $fromTo
  */
-function __t(string $message, array $fromTo = [])
+function __t(string $message, array $fromTo = []): string
 {
     return strtr(__($message), $fromTo);
 }
 /**
  * Translates a formatted plural string.
  */
-function __n(string $singular, string $plural, int $count)
+function __n(string $singular, string $plural, int $count): string
 {
     return getTranslator()->ngettext($singular, $plural, $count);
 }
 /**
  * Translates a formatted plural string with `sprintf`.
  */
-function __nf(string $singular, string $plural, int $count, ...$arguments)
+function __nf(string $singular, string $plural, int $count, bool|float|int|string|null ...$values): string
 {
     return sprintf(
         __n($singular, $plural, $count),
-        ...$arguments
+        ...$values
     );
 }
 /**
  * Translates a formatted plural string with `strtr`.
+ *
+ * @param array<string, string> $replacePairs
  */
-function __nt(string $singular, string $plural, int $count, array $fromTo)
+function __nt(string $singular, string $plural, int $count, array $replacePairs): string
 {
-    return strtr(__n($singular, $plural, $count), $fromTo);
+    return strtr(__n($singular, $plural, $count), $replacePairs);
 }
-
-// @codeCoverageIgnoreEnd
