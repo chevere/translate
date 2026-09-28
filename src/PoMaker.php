@@ -21,6 +21,8 @@ use Chevere\Translate\Interfaces\PoMakerInterface;
 use Chevere\Writer\Interfaces\WriterInterface;
 use Chevere\Writer\NullWriter;
 use Gettext\Generator\PoGenerator;
+use Gettext\Scanner\CodeScanner;
+use Gettext\Scanner\JsScanner;
 use Gettext\Scanner\PhpScanner;
 use Gettext\Translations;
 use RecursiveDirectoryIterator;
@@ -38,9 +40,9 @@ final class PoMaker implements PoMakerInterface
         '__nt' => 'ngettext',
     ];
 
-    private DirectoryInterface $sourceDir;
+    private DirectoryInterface $sourceDirectory;
 
-    private PhpScanner $phpScanner;
+    private Translations $translations;
 
     public function __construct(
         private string $locale,
@@ -54,40 +56,34 @@ final class PoMaker implements PoMakerInterface
         return $this->writer;
     }
 
-    public function withScanFor(DirectoryInterface $sourceDirectory): PoMakerInterface
+    public function withScanFor(DirectoryInterface $sourceDirectory, array $functions = []): PoMakerInterface
     {
         $new = clone $this;
         $sourceDirectory->assertExists();
-        $new->sourceDir = $sourceDirectory;
-        $new->phpScanner = new PhpScanner(Translations::create($new->domain));
-        $new->phpScanner->setDefaultDomain($new->domain);
-        $new->phpScanner->setFunctions(self::FUNCTIONS);
-        $iterator = $new->getIterator();
-        $this->writer->write(
-            sprintf("📂 Starting dir %s iteration\n", $new->sourceDir->path()->__toString())
+        $new->sourceDirectory = $sourceDirectory;
+        $new->translations = Translations::create($new->domain);
+        $scanners = [
+            '.php' => new PhpScanner($new->translations),
+            '.js' => new JsScanner($new->translations),
+        ];
+        $new->writer->write(
+            sprintf("📂 Starting dir %s iteration\n", $new->sourceDirectory->path()->__toString())
         );
-        $iterator->rewind();
-        while ($iterator->valid()) {
-            /** @var SplFileInfo $file */
-            $file = $iterator->current();
-            $pathName = $file->getPathname();
-            $new->writer->write("- File {$pathName}\n");
-            $new->phpScanner->scanFile($pathName);
-            $iterator->next();
+        foreach ($scanners as $extension => $scanner) {
+            $new->scan($scanner, $extension, $functions);
         }
-        $this->writer->write("💯 Done!\n");
+        $new->writer->write("💯 Done!\n");
 
         return $new;
     }
 
     public function make(DirectoryInterface $targetDirectory): void
     {
-        if (! isset($this->phpScanner)) {
+        if (! isset($this->translations)) {
             throw new BadMethodCallException(
                 sprintf(
-                    'Unable to call `%s` without a `%s` instance',
-                    __METHOD__,
-                    PhpScanner::class
+                    'Unable to call `%s` without calling `withScanFor` first',
+                    __METHOD__
                 )
             );
         }
@@ -96,30 +92,43 @@ final class PoMaker implements PoMakerInterface
         $targetDirectory->createIfNotExists();
         $poFile = new File($targetDirectory->path()->getChild($this->domain . '.po'));
         $poFile->removeIfExists();
-        /**
-         * @var Translations $translations
-         */
-        foreach ($this->phpScanner->getTranslations() as $translations) {
-            $translations->setLanguage($this->locale);
-            $generator->generateFile($translations, $poFile->path()->__toString());
+        $translations = $this->translations->setLanguage($this->locale);
+        $generator->generateFile($translations, $poFile->path()->__toString());
+    }
 
-            break;
+    /**
+     * @param array<string, string> $functions
+     */
+    private function scan(CodeScanner $scanner, string $extension, array $functions = []): void
+    {
+        $scanner->setDefaultDomain($this->domain);
+        $scanner->setFunctions(
+            array_merge(self::FUNCTIONS, $functions)
+        );
+        $iterator = $this->getIterator($extension);
+        while ($iterator->valid()) {
+            /** @var SplFileInfo $file */
+            $file = $iterator->current();
+            $pathName = $file->getPathname();
+            $this->writer->write("- File {$pathName}\n");
+            $scanner->scanFile($pathName);
+            $iterator->next();
         }
     }
 
     /**
      * @return RecursiveIteratorIterator<RecursiveFileFilterIterator>
      */
-    private function getIterator(): RecursiveIteratorIterator
+    private function getIterator(string $extension): RecursiveIteratorIterator
     {
         $iterator = new RecursiveIteratorIterator(
             new RecursiveFileFilterIterator(
                 new RecursiveDirectoryIterator(
-                    $this->sourceDir->path()
+                    $this->sourceDirectory->path()
                         ->__toString(),
                     RecursiveDirectoryIterator::SKIP_DOTS
                 ),
-                '.php'
+                $extension
             )
         );
         $iterator->rewind();

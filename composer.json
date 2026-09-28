@@ -16,10 +16,12 @@
         "chevere/iterator": "^1.0.x-dev",
         "chevere/writer": "^1.0",
         "gettext/gettext": "^5.7",
+        "gettext/js-scanner": "^1.1",
         "gettext/php-scanner": "^2.0",
         "gettext/translator": "^1.2"
     },
     "require-dev": {
+        "chevere/var-dump": "^2.0",
         "phpstan/phpstan": "^2.1",
         "phpunit/phpunit": "^10.5",
         "symplify/easy-coding-standard": "^13.2"

@@ -111,10 +111,10 @@ $poMaker = new PoMaker(locale: 'es-CL', domain: 'messages');
 
 ### Scan Directory
 
-Method `withScannerFor` is used to scan a directory for `.php` files with calls for [translatable](#how-it-works) functions.
+Method `withScannerFor` is used to scan a directory for `.php` and `.js` files with calls for [translatable](#how-it-works) functions.
 
 ```php
-$poMaker = $poMaker->withScannerFor(sourceDir: $source);
+$poMaker = $poMaker->withScanFor(sourceDir: $source, functions: ['myfn' => 'gettext']);
 ```
 
 ### Make file

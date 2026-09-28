@@ -28,11 +28,13 @@ use LogicException;
 interface PoMakerInterface
 {
     /**
+     * @param array<string, string> $functions The functions to scan for on top of the default ones.
+     *
      * @throws DirectoryNotExistsException
      * @throws InvalidArgumentException
      * @throws LogicException
      */
-    public function withScanFor(DirectoryInterface $sourceDirectory): self;
+    public function withScanFor(DirectoryInterface $sourceDirectory, array $functions = []): self;
 
     /**
      * @throws BadMethodCallException If called without scanner.

@@ -43,6 +43,14 @@ final class PoMakerTest extends TestCase
         $this->assertNotSame($poMaker, $with);
         $with->make($dir->getChild('make/'));
         $this->assertFileExists($poFile->path()->__toString());
+        $po = file_get_contents($poFile->path()->__toString());
+        $this->assertIsString($po);
+        foreach (['var', 'foo', 'js'] as $word) {
+            $this->assertStringContainsString("msgid \"{$word}\"", $po);
+            $this->assertStringContainsString("msgid \"%d {$word}\"", $po);
+            $this->assertStringContainsString("msgid_plural \"%v {$word}s\"", $po);
+        }
+        $this->assertStringContainsString('user/file.js', $po);
         $makeDir->remove();
     }
 }
