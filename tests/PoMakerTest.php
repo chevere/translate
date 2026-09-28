@@ -39,7 +39,13 @@ final class PoMakerTest extends TestCase
         $dir = directoryForPath(__DIR__ . '/_resources/');
         $poMaker = new PoMaker($locale, 'messages');
         $this->assertEquals(new NullWriter(), $poMaker->writer());
-        $with = $poMaker->withScanFor($dir->getChild('user/'));
+        $with = $poMaker->withScanFor(
+            $dir->getChild('user/'),
+            [
+                '_s' => 'gettext',
+                '_n' => 'ngettext',
+            ]
+        );
         $this->assertNotSame($poMaker, $with);
         $with->make($dir->getChild('make/'));
         $this->assertFileExists($poFile->path()->__toString());
@@ -51,6 +57,15 @@ final class PoMakerTest extends TestCase
             $this->assertStringContainsString("msgid_plural \"%v {$word}s\"", $po);
         }
         $this->assertStringContainsString('user/file.js', $po);
+        $jsLines = file($dir->path()->__toString() . 'user/file.js', FILE_IGNORE_NEW_LINES);
+        $this->assertIsArray($jsLines);
+        foreach (array_keys(array_filter($jsLines, fn ($l) => trim($l) !== '')) as $index) {
+            $line = $index + 1;
+            $this->assertMatchesRegularExpression("#user/file\\.js:{$line}\\b#", $po);
+        }
+        $this->assertStringContainsString('msgid "Obj.s"', $po);
+        $this->assertStringContainsString('msgid "Obj.n"', $po);
+        $this->assertStringContainsString('msgid_plural "Obj.n(s)"', $po);
         $makeDir->remove();
     }
 }
