@@ -41,7 +41,7 @@ function __f(string $message, bool|float|int|string|null ...$values): string
     return sprintf(__($message), ...$values);
 }
 /**
- * Translates a formatted string with `strtr`.
+ * Translates a string with `strtr`.
  *
  * @param array<string, string> $fromTo
  */
@@ -67,7 +67,7 @@ function __nf(string $singular, string $plural, int $count, bool|float|int|strin
     );
 }
 /**
- * Translates a formatted plural string with `strtr`.
+ * Translates a plural string with `strtr`.
  *
  * @param array<string, string> $replacePairs
  */
