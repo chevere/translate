@@ -92,7 +92,6 @@ final class PoMaker implements PoMakerInterface
                 )
             );
         }
-        $generator = new PoGenerator();
         $targetDirectory = match ($this->domain) {
             '' => $targetDirectory,
             default => $targetDirectory->getChild($this->locale . '/'),
@@ -106,9 +105,12 @@ final class PoMaker implements PoMakerInterface
             $targetDirectory->path()
                 ->getChild($filename)
         );
-        $poFile->removeIfExists();
         $translations = $this->translations->setLanguage($this->locale);
-        $generator->generateFile($translations, $poFile->path()->__toString());
+        (new PoGenerator())->generateFile($translations, $poFile->path()->__toString());
+        /**
+         * @infection-ignore-all
+         */
+        $poFile->assertExists();
         $this->writer->write(
             <<<PLAIN
             [OK] PO file generated at {$poFile->path()}

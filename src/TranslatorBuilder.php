@@ -59,9 +59,11 @@ final class TranslatorBuilder implements TranslatorBuilderInterface
             $new->localeTargetDirectory->path()
                 ->getChild($phpFilename)
         );
-        $phpFile->removeIfExists();
         (new ArrayGenerator())
             ->generateFile($translations, $phpFile->path()->__toString());
+        /**
+         * @infection-ignore-all
+         */
         $phpFile->assertExists();
         $this->writer->write(
             <<<PLAIN

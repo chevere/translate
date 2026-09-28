@@ -33,17 +33,17 @@ final class TranslatorBuilderTest extends TestCase
     {
         $this->expectException(DirectoryNotExistsException::class);
         new TranslatorBuilder(
-            $this->getDir('404/'),
-            $this->getDir('compiled/')
+            $this->getDirectory('404/'),
+            $this->getDirectory('compiled/')
         );
     }
 
     public function testConstruct(): void
     {
         $this->expectNotToPerformAssertions();
-        $sourceDir = $this->getDir('locales/');
-        $targetDir = $this->getDir('compiled/');
-        new TranslatorBuilder($sourceDir, $targetDir);
+        $sourceDirectory = $this->getDirectory('locales/');
+        $targetDirectory = $this->getDirectory('compiled/');
+        new TranslatorBuilder($sourceDirectory, $targetDirectory);
     }
 
     public function testWithMakeLocaleDirectoryNotExists(): void
@@ -64,7 +64,7 @@ final class TranslatorBuilderTest extends TestCase
     {
         $writer = new StreamWriter(streamTemp());
         $translatorBuilder = $this->getTranslatorBuilder(writer: $writer);
-        $path = $this->getDir('compiled/')
+        $path = $this->getDirectory('compiled/')
             ->path();
         $domain = 'messages';
         foreach (['en-US', 'es-CL'] as $locale) {
@@ -86,12 +86,64 @@ final class TranslatorBuilderTest extends TestCase
         );
     }
 
+    public function testWithBuildWithoutDomain(): void
+    {
+        $sourceDirectory = $this->getDirectory('locales-flat-tmp/');
+        $targetDirectory = $this->getDirectory('compiled-flat-tmp/');
+        $sourceDirectory->removeIfExists();
+        $targetDirectory->removeIfExists();
+        $sourceDirectory->createIfNotExists();
+        $locales = ['en-US', 'es-CL'];
+        foreach ($locales as $locale) {
+            copy(
+                $this->getDirectory("locales/{$locale}/")
+                    ->path()
+                    ->getChild('messages.po')
+                    ->__toString(),
+                $sourceDirectory->path()
+                    ->getChild("{$locale}.po")
+                    ->__toString()
+            );
+        }
+        $writer = new StreamWriter(streamTemp());
+        $translatorBuilder = new TranslatorBuilder(
+            $sourceDirectory,
+            $targetDirectory,
+            new PoLoader(),
+            $writer
+        );
+        $path = $targetDirectory->path();
+
+        try {
+            foreach ($locales as $locale) {
+                $with = $translatorBuilder->withBuild(locale: $locale);
+                $this->assertNotSame($translatorBuilder, $with);
+                $this->assertFileExists(
+                    $path->getChild("{$locale}.php")
+                        ->__toString()
+                );
+            }
+            $this->assertSame(
+                <<<PLAIN
+                [OK] {$path}en-US.php
+                [OK] {$path}es-CL.php
+
+                PLAIN
+                ,
+                $writer->__toString()
+            );
+        } finally {
+            $sourceDirectory->removeIfExists();
+            $targetDirectory->removeIfExists();
+        }
+    }
+
     public function testMakeCreatesTargetLocaleDirectory(): void
     {
-        $targetDir = $this->getDir('compiled-tmp/');
-        $targetDir->removeIfExists();
-        $translatorBuilder = new TranslatorBuilder($this->getDir('locales/'), $targetDir);
-        $localeDir = $targetDir->getChild('en-US/');
+        $targetDirectory = $this->getDirectory('compiled-tmp/');
+        $targetDirectory->removeIfExists();
+        $translatorBuilder = new TranslatorBuilder($this->getDirectory('locales/'), $targetDirectory);
+        $localeDir = $targetDirectory->getChild('en-US/');
         $this->assertFalse($localeDir->exists());
 
         try {
@@ -103,7 +155,7 @@ final class TranslatorBuilderTest extends TestCase
                     ->__toString()
             );
         } finally {
-            $targetDir->removeIfExists();
+            $targetDirectory->removeIfExists();
         }
     }
 
@@ -112,14 +164,14 @@ final class TranslatorBuilderTest extends TestCase
         WriterInterface $writer = new NullWriter(),
     ): TranslatorBuilderInterface {
         return new TranslatorBuilder(
-            $this->getDir('locales/'),
-            $this->getDir('compiled/'),
+            $this->getDirectory('locales/'),
+            $this->getDirectory('compiled/'),
             $poLoader,
             $writer
         );
     }
 
-    private function getDir(string $child): DirectoryInterface
+    private function getDirectory(string $child): DirectoryInterface
     {
         return directoryForPath(__DIR__ . '/_resources/')->getChild($child);
     }
