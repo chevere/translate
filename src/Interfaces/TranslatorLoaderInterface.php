@@ -13,7 +13,6 @@ declare(strict_types=1);
 
 namespace Chevere\Translate\Interfaces;
 
-use Chevere\Filesystem\Interfaces\DirectoryInterface;
 use DomainException;
 use Gettext\TranslatorInterface;
 use InvalidArgumentException;
@@ -24,12 +23,10 @@ use LogicException;
  */
 interface TranslatorLoaderInterface
 {
-    public function directory(): DirectoryInterface;
-
     /**
      * @throws InvalidArgumentException If $locale doesn't exists.
      * @throws DomainException If $domain doesn't exists.
      * @throws LogicException If unable to load translator.
      */
-    public function getTranslator(string $locale, string $domain): TranslatorInterface;
+    public function getTranslator(string $locale, string $domain = ''): TranslatorInterface;
 }

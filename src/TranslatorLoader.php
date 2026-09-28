@@ -29,26 +29,28 @@ final class TranslatorLoader implements TranslatorLoaderInterface
         $this->directory->assertExists();
     }
 
-    public function directory(): DirectoryInterface
+    public function getTranslator(string $locale, string $domain = ''): TranslatorInterface
     {
-        return $this->directory;
-    }
-
-    public function getTranslator(string $locale, string $domain): TranslatorInterface
-    {
-        $dir = $this->directory->getChild($locale . '/');
-        if (! $dir->exists()) {
+        $directory = match ($domain) {
+            '' => $this->directory,
+            default => $this->directory->getChild($locale . '/'),
+        };
+        if (! $directory->exists()) {
             throw new InvalidArgumentException(
-                sprintf("Locale `%s` doesn't exits", $locale)
+                sprintf("Directory `%s` doesn't exits", $locale)
             );
         }
+        $filename = match ($domain) {
+            '' => "${locale}.php",
+            default => "${domain}.php",
+        };
         $file = new File(
-            $dir->path()
-                ->getChild("${domain}.php")
+            $directory->path()
+                ->getChild($filename)
         );
         if (! $file->exists()) {
             throw new DomainException(
-                sprintf("Domain `%s` doesn't exits", $domain)
+                sprintf("File `%s` doesn't exits", $filename)
             );
         }
 

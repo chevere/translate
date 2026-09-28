@@ -18,7 +18,6 @@ use Chevere\Filesystem\Exceptions\DirectoryNotExistsException;
 use Chevere\Filesystem\Exceptions\DirectoryUnableToCreateException;
 use Chevere\Filesystem\Exceptions\FileUnableToRemoveException;
 use Chevere\Filesystem\Interfaces\DirectoryInterface;
-use Chevere\Writer\Interfaces\WriterInterface;
 use InvalidArgumentException;
 use LogicException;
 
@@ -43,6 +42,4 @@ interface PoMakerInterface
      * @throws LogicException If unable to create the translation file.
      */
     public function make(DirectoryInterface $targetDirectory): void;
-
-    public function writer(): WriterInterface;
 }

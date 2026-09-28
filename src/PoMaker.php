@@ -51,11 +51,6 @@ final class PoMaker implements PoMakerInterface
     ) {
     }
 
-    public function writer(): WriterInterface
-    {
-        return $this->writer;
-    }
-
     public function withScanFor(
         DirectoryInterface $directory,
         array $functions = []
@@ -69,16 +64,20 @@ final class PoMaker implements PoMakerInterface
             '.js' => new JsScanner($new->translations),
         ];
         $new->writer->write(
-            sprintf(
-                "📂 Starting dir %s iteration\n",
-                $new->directory->path()
-                    ->__toString()
-            )
+            <<<PLAIN
+            Starting directory scan at {$new->directory->path()}
+
+            PLAIN
         );
         foreach ($scanners as $extension => $scanner) {
             $new->scan($scanner, $extension, $functions);
         }
-        $new->writer->write("💯 Done!\n");
+        $new->writer->write(
+            <<<PLAIN
+            [OK] Directory scan completed
+
+            PLAIN
+        );
 
         return $new;
     }
@@ -94,8 +93,8 @@ final class PoMaker implements PoMakerInterface
             );
         }
         $generator = new PoGenerator();
-        $targetDirectory = match (true) {
-            $this->domain === '' => $targetDirectory,
+        $targetDirectory = match ($this->domain) {
+            '' => $targetDirectory,
             default => $targetDirectory->getChild($this->locale . '/'),
         };
         $filename = match (true) {
@@ -110,6 +109,12 @@ final class PoMaker implements PoMakerInterface
         $poFile->removeIfExists();
         $translations = $this->translations->setLanguage($this->locale);
         $generator->generateFile($translations, $poFile->path()->__toString());
+        $this->writer->write(
+            <<<PLAIN
+            [OK] PO file generated at {$poFile->path()}
+
+            PLAIN
+        );
     }
 
     /**
