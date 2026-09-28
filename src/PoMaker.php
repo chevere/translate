@@ -40,13 +40,13 @@ final class PoMaker implements PoMakerInterface
         '__nt' => 'ngettext',
     ];
 
-    private DirectoryInterface $sourceDirectory;
+    private DirectoryInterface $directory;
 
     private Translations $translations;
 
     public function __construct(
         private string $locale,
-        private string $domain,
+        private string $domain = '',
         private WriterInterface $writer = new NullWriter()
     ) {
     }
@@ -56,18 +56,24 @@ final class PoMaker implements PoMakerInterface
         return $this->writer;
     }
 
-    public function withScanFor(DirectoryInterface $sourceDirectory, array $functions = []): PoMakerInterface
-    {
+    public function withScanFor(
+        DirectoryInterface $directory,
+        array $functions = []
+    ): PoMakerInterface {
         $new = clone $this;
-        $sourceDirectory->assertExists();
-        $new->sourceDirectory = $sourceDirectory;
+        $directory->assertExists();
+        $new->directory = $directory;
         $new->translations = Translations::create($new->domain);
         $scanners = [
             '.php' => new PhpScanner($new->translations),
             '.js' => new JsScanner($new->translations),
         ];
         $new->writer->write(
-            sprintf("📂 Starting dir %s iteration\n", $new->sourceDirectory->path()->__toString())
+            sprintf(
+                "📂 Starting dir %s iteration\n",
+                $new->directory->path()
+                    ->__toString()
+            )
         );
         foreach ($scanners as $extension => $scanner) {
             $new->scan($scanner, $extension, $functions);
@@ -88,9 +94,19 @@ final class PoMaker implements PoMakerInterface
             );
         }
         $generator = new PoGenerator();
-        $targetDirectory = $targetDirectory->getChild($this->locale . '/');
+        $targetDirectory = match (true) {
+            $this->domain === '' => $targetDirectory,
+            default => $targetDirectory->getChild($this->locale . '/'),
+        };
+        $filename = match (true) {
+            $this->domain === '' => $this->locale . '.po',
+            default => $this->domain . '.po',
+        };
         $targetDirectory->createIfNotExists();
-        $poFile = new File($targetDirectory->path()->getChild($this->domain . '.po'));
+        $poFile = new File(
+            $targetDirectory->path()
+                ->getChild($filename)
+        );
         $poFile->removeIfExists();
         $translations = $this->translations->setLanguage($this->locale);
         $generator->generateFile($translations, $poFile->path()->__toString());
@@ -124,7 +140,7 @@ final class PoMaker implements PoMakerInterface
         $iterator = new RecursiveIteratorIterator(
             new RecursiveFileFilterIterator(
                 new RecursiveDirectoryIterator(
-                    $this->sourceDirectory->path()
+                    $this->directory->path()
                         ->__toString(),
                     RecursiveDirectoryIterator::SKIP_DOTS
                 ),

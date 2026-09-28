@@ -29,7 +29,7 @@ final class PoMakerTest extends TestCase
             ->make(directoryForPath(__DIR__ . '/'));
     }
 
-    public function testMakePo(): void
+    public function testMakeWithDomain(): void
     {
         $locale = 'en-US';
         $makeDir = directoryForPath(__DIR__ . '/_resources/make/');
@@ -66,6 +66,21 @@ final class PoMakerTest extends TestCase
         $this->assertStringContainsString('msgid "Obj.s"', $po);
         $this->assertStringContainsString('msgid "Obj.n"', $po);
         $this->assertStringContainsString('msgid_plural "Obj.n(s)"', $po);
+        $makeDir->remove();
+    }
+
+    public function testMakeWithoutDomain(): void
+    {
+        $locale = 'en';
+        $makeDir = directoryForPath(__DIR__ . '/_resources/make/');
+        $poFile = new File($makeDir->path()->getChild($locale . '.po'));
+        $poFile->removeIfExists();
+        $dir = directoryForPath(__DIR__ . '/_resources/');
+        $poMaker = new PoMaker($locale);
+        $with = $poMaker->withScanFor($dir->getChild('user/'));
+        $this->assertNotSame($poMaker, $with);
+        $with->make($dir->getChild('make/'));
+        $this->assertFileExists($poFile->path()->__toString());
         $makeDir->remove();
     }
 }

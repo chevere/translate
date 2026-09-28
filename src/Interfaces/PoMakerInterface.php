@@ -34,7 +34,7 @@ interface PoMakerInterface
      * @throws InvalidArgumentException
      * @throws LogicException
      */
-    public function withScanFor(DirectoryInterface $sourceDirectory, array $functions = []): self;
+    public function withScanFor(DirectoryInterface $directory, array $functions = []): self;
 
     /**
      * @throws BadMethodCallException If called without scanner.
