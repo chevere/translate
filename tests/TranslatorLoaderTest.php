@@ -34,8 +34,8 @@ final class TranslatorLoaderTest extends TestCase
     public function testConstruct(): void
     {
         $this->expectNotToPerformAssertions();
-        $dir = directoryForPath(__DIR__ . '/_resources/compiled/');
-        new TranslatorLoader($dir);
+        $directory = directoryForPath(__DIR__ . '/_resources/compiled/');
+        new TranslatorLoader($directory);
     }
 
     public function testGetTranslatorInvalidLocale(): void

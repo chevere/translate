@@ -143,14 +143,14 @@ final class TranslatorBuilderTest extends TestCase
         $targetDirectory = $this->getDirectory('compiled-tmp/');
         $targetDirectory->removeIfExists();
         $translatorBuilder = new TranslatorBuilder($this->getDirectory('locales/'), $targetDirectory);
-        $localeDir = $targetDirectory->getChild('en-US/');
-        $this->assertFalse($localeDir->exists());
+        $localeDirectory = $targetDirectory->getChild('en-US/');
+        $this->assertFalse($localeDirectory->exists());
 
         try {
             $translatorBuilder->withBuild(locale: 'en-US', domain: 'messages');
-            $this->assertTrue($localeDir->exists());
+            $this->assertTrue($localeDirectory->exists());
             $this->assertFileExists(
-                $localeDir->path()
+                $localeDirectory->path()
                     ->getChild('messages.php')
                     ->__toString()
             );

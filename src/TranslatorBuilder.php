@@ -28,12 +28,12 @@ final class TranslatorBuilder implements TranslatorBuilderInterface
     private DirectoryInterface $localeTargetDirectory;
 
     public function __construct(
-        private DirectoryInterface $sourceDir,
-        private DirectoryInterface $targetDir,
+        private DirectoryInterface $sourceDirectory,
+        private DirectoryInterface $targetDirectory,
         private PoLoader $poLoader = new PoLoader(),
         private WriterInterface $writer = new NullWriter()
     ) {
-        $this->sourceDir->assertExists();
+        $this->sourceDirectory->assertExists();
     }
 
     public function withBuild(string $locale, string $domain = ''): self
@@ -78,13 +78,13 @@ final class TranslatorBuilder implements TranslatorBuilderInterface
     private function handleLocale(string $locale, string $domain): void
     {
         $this->localeSourceDirectory = match ($domain) {
-            '' => $this->sourceDir,
-            default => $this->sourceDir->getChild($locale . '/')
+            '' => $this->sourceDirectory,
+            default => $this->sourceDirectory->getChild($locale . '/')
         };
         $this->localeSourceDirectory->assertExists();
         $this->localeTargetDirectory = match ($domain) {
-            '' => $this->targetDir,
-            default => $this->targetDir->getChild($locale . '/')
+            '' => $this->targetDirectory,
+            default => $this->targetDirectory->getChild($locale . '/')
         };
     }
 }
