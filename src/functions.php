@@ -17,7 +17,7 @@ use Gettext\Translator;
 use Gettext\TranslatorInterface;
 use LogicException;
 
-function getTranslator(): TranslatorInterface
+function translator(): TranslatorInterface
 {
     try {
         return TranslatorInstance::get();
@@ -25,53 +25,31 @@ function getTranslator(): TranslatorInterface
         return new Translator();
     }
 }
-
 /**
  * Translates a string.
  */
 function __(string $message): string
 {
-    return getTranslator()->gettext($message);
+    return translator()->gettext($message);
 }
 /**
- * Translates a formatted string with `sprintf`.
- */
-function __f(string $message, bool|float|int|string|null ...$values): string
-{
-    return sprintf(__($message), ...$values);
-}
-/**
- * Translates a string with `strtr`.
- *
- * @param array<string, string> $fromTo
- */
-function __t(string $message, array $fromTo = []): string
-{
-    return strtr(__($message), $fromTo);
-}
-/**
- * Translates a formatted plural string.
+ * Translates a plural string.
  */
 function __n(string $singular, string $plural, int $count): string
 {
-    return getTranslator()->ngettext($singular, $plural, $count);
+    return translator()->ngettext($singular, $plural, $count);
 }
 /**
- * Translates a formatted plural string with `sprintf`.
+ * Translates a string checking its context.
  */
-function __nf(string $singular, string $plural, int $count, bool|float|int|string|null ...$values): string
+function __p(string $context, string $message): string
 {
-    return sprintf(
-        __n($singular, $plural, $count),
-        ...$values
-    );
+    return translator()->pgettext($context, $message);
 }
 /**
- * Translates a plural string with `strtr`.
- *
- * @param array<string, string> $replacePairs
+ * Translates a plural string checking its context.
  */
-function __nt(string $singular, string $plural, int $count, array $replacePairs): string
+function __np(string $context, string $singular, string $plural, int $count): string
 {
-    return strtr(__n($singular, $plural, $count), $replacePairs);
+    return translator()->npgettext($context, $singular, $plural, $count);
 }

@@ -34,3 +34,16 @@ msgid "%d second"
 msgid_plural "%d seconds"
 msgstr[0] "%d segundo"
 msgstr[1] "%d segundos"
+
+#: context.php:1
+msgctxt "menu"
+msgid "Language"
+msgstr "Idioma"
+
+#: context.php:2
+#, php-format
+msgctxt "upload"
+msgid "%d file"
+msgid_plural "%d files"
+msgstr[0] "%d archivo"
+msgstr[1] "%d archivos"

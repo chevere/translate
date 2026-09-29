@@ -18,5 +18,17 @@
         1 => '%d segundos',
       ),
     ),
+    'menu' => 
+    array (
+      'Language' => 'Idioma',
+    ),
+    'upload' => 
+    array (
+      '%d file' => 
+      array (
+        0 => '%d archivo',
+        1 => '%d archivos',
+      ),
+    ),
   ),
 );
