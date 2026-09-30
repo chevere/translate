@@ -13,15 +13,29 @@ declare(strict_types=1);
 
 namespace Chevere\Translate;
 
+use Chevere\Filesystem\Interfaces\FilePhpReturnInterface;
 use Chevere\Translate\Interfaces\TranslatorInterface;
 use Gettext\Translator as GettextTranslator;
+use InvalidArgumentException;
 
 final class Translator extends GettextTranslator implements TranslatorInterface
 {
-    public function withLoad(string ...$files): TranslatorInterface
+    public function withLoad(FilePhpReturnInterface ...$file): TranslatorInterface
     {
         $new = clone $this;
-        $new->loadTranslations(...$files);
+        foreach ($file as $item) {
+            $translations = $item->get();
+            if (! is_array($translations)) {
+                $type = gettype($translations);
+
+                throw new InvalidArgumentException(
+                    <<<PLAIN
+                    Translations must be an array, {$type} given
+                    PLAIN
+                );
+            }
+            $new->addTranslations($translations);
+        }
 
         return $new;
     }

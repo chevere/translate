@@ -13,6 +13,7 @@ declare(strict_types=1);
 
 namespace Chevere\Translate\Interfaces;
 
+use Chevere\Filesystem\Interfaces\FilePhpReturnInterface;
 use Gettext\TranslatorInterface as GettextTranslatorInterface;
 
 /**
@@ -23,7 +24,7 @@ interface TranslatorInterface extends GettextTranslatorInterface
     /**
      * Load new translations from php files
      */
-    public function withLoad(string ...$files): self;
+    public function withLoad(FilePhpReturnInterface ...$file): self;
 
     /**
      * Add new translations to the dictionary.

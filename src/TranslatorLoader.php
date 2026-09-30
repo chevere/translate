@@ -13,9 +13,9 @@ declare(strict_types=1);
 
 namespace Chevere\Translate;
 
-use Chevere\Filesystem\File;
 use Chevere\Filesystem\Interfaces\DirectoryInterface;
 use Chevere\Translate\Interfaces\TranslatorInterface;
+use function Chevere\Filesystem\filePhpReturnForPath;
 
 final class TranslatorLoader
 {
@@ -41,12 +41,11 @@ final class TranslatorLoader
             '' => "{$locale}.php",
             default => "{$domain}.php",
         };
-        $file = new File(
+        $file = filePhpReturnForPath(
             $directory->path()
                 ->getChild($filename)
         );
-        $file->assertExists();
-        $new->translator = $new->translator->withLoad($file->path()->__toString());
+        $new->translator = $new->translator->withLoad($file);
 
         return $new;
     }

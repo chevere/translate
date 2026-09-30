@@ -15,13 +15,14 @@ namespace Chevere\Tests;
 
 use Chevere\Translate\Translator;
 use PHPUnit\Framework\TestCase;
+use function Chevere\Filesystem\filePhpReturnForPath;
 
 final class TranslatorTest extends TestCase
 {
     public function testWithLoad(): void
     {
         $translator = new Translator();
-        $file = __DIR__ . '/_resources/compiled/es-CL/messages.php';
+        $file = filePhpReturnForPath(__DIR__ . '/_resources/compiled/es-CL/messages.php');
         $with = $translator->withLoad($file);
         $this->assertNotSame($translator, $with);
         $this->assertSame('Idiomas', $with->gettext('Language'));
@@ -62,7 +63,7 @@ final class TranslatorTest extends TestCase
     public function testWithLoadOverrideByAdd(): void
     {
         $translator = new Translator();
-        $file = __DIR__ . '/_resources/compiled/es-CL/messages.php';
+        $file = filePhpReturnForPath(__DIR__ . '/_resources/compiled/es-CL/messages.php');
         $add = [
             // 'domain' => null,
             'pluralForms' => 'nplurals=2; plural=(n != 1);',
