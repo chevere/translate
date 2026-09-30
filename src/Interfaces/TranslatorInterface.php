@@ -15,11 +15,14 @@ namespace Chevere\Translate\Interfaces;
 
 use Chevere\Filesystem\Interfaces\FilePhpReturnInterface;
 use Gettext\TranslatorInterface as GettextTranslatorInterface;
+use IteratorAggregate;
+use Traversable;
 
 /**
  * Describes the component in charge of providing translator tooling.
+ * @extends IteratorAggregate<string, mixed>
  */
-interface TranslatorInterface extends GettextTranslatorInterface
+interface TranslatorInterface extends GettextTranslatorInterface, IteratorAggregate
 {
     /**
      * Load new translations from php files
@@ -34,7 +37,7 @@ interface TranslatorInterface extends GettextTranslatorInterface
     public function withAdd(array $messages, string $pluralForms = '', string $domain = ''): self;
 
     /**
-     * @return array{string, array<string, array<string, mixed>>} Dictionary indexed by domain.
+     * @return array{string, array<string, array<string, mixed>>} Dictionary indexed by domain => context => messages.
      */
     public function dictionary(): array;
 
@@ -42,4 +45,6 @@ interface TranslatorInterface extends GettextTranslatorInterface
      * @return array<string, string> Plural forms indexed by domain.
      */
     public function plurals(): array;
+
+    public function getIterator(): Traversable;
 }

@@ -32,7 +32,7 @@ final class TranslatorTest extends TestCase
     {
         $translator = new Translator();
         $add = [
-            // 'domain' => null,
+            'domain' => 'domain',
             'pluralForms' => 'nplurals=2; plural=(n != 1);',
             'messages' => [
                 '' => [
@@ -45,18 +45,25 @@ final class TranslatorTest extends TestCase
         $this->assertSame('Lenguas', $with->gettext('Language'));
         $this->assertSame(
             [
-                '' => $add['messages'],
+                'domain' => $add['messages'],
             ],
             $with->dictionary()
         );
         $this->assertSame(
             [
-                '' => [
+                'domain' => [
                     'count' => 2,
                     'code' => 'return ($n != 1);',
                 ],
             ],
             $with->plurals()
+        );
+        $this->assertSame(
+            [
+                'plurals' => $with->plurals(),
+                'dictionary' => $with->dictionary(),
+            ],
+            [...$with]
         );
     }
 
@@ -65,8 +72,7 @@ final class TranslatorTest extends TestCase
         $translator = new Translator();
         $file = filePhpReturnForPath(__DIR__ . '/_resources/compiled/es-CL/messages.php');
         $add = [
-            // 'domain' => null,
-            'pluralForms' => 'nplurals=2; plural=(n != 1);',
+            'domain' => '',
             'messages' => [
                 '' => [
                     'Language' => 'Lenguas',
@@ -76,6 +82,46 @@ final class TranslatorTest extends TestCase
         $with = $translator->withLoad($file)
             ->withAdd(...$add);
         $this->assertNotSame($translator, $with);
-        $this->assertSame('Lenguas', $with->gettext('Language'));
+        $this->assertSame(
+            'Lenguas',
+            $with->dictionary()['']['']['Language']
+        );
+    }
+
+    public function testWithAddDomain(): void
+    {
+        $translator = new Translator();
+        $with = $translator->withAdd(
+            domain: 'test',
+            messages: [
+                'menu' => [
+                    'Language' => 'Lenguas',
+                ],
+            ],
+        )
+            ->withAdd(
+                domain: 'alt',
+                messages: [
+                    'modal' => [
+                        'Language' => 'Hablamiento',
+                    ],
+                ],
+            );
+        $this->assertNotSame($translator, $with);
+        $this->assertSame(
+            [
+                'test' => [
+                    'menu' => [
+                        'Language' => 'Lenguas',
+                    ],
+                ],
+                'alt' => [
+                    'modal' => [
+                        'Language' => 'Hablamiento',
+                    ],
+                ],
+            ],
+            $with->dictionary()
+        );
     }
 }

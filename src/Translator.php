@@ -17,6 +17,7 @@ use Chevere\Filesystem\Interfaces\FilePhpReturnInterface;
 use Chevere\Translate\Interfaces\TranslatorInterface;
 use Gettext\Translator as GettextTranslator;
 use InvalidArgumentException;
+use Traversable;
 
 final class Translator extends GettextTranslator implements TranslatorInterface
 {
@@ -62,5 +63,11 @@ final class Translator extends GettextTranslator implements TranslatorInterface
     public function plurals(): array
     {
         return $this->plurals;
+    }
+
+    public function getIterator(): Traversable
+    {
+        yield 'plurals' => $this->plurals;
+        yield 'dictionary' => $this->dictionary;
     }
 }
