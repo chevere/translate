@@ -15,30 +15,28 @@ namespace Chevere\Translate;
 
 use Chevere\Filesystem\File;
 use Chevere\Filesystem\Interfaces\DirectoryInterface;
-use Chevere\Translate\Interfaces\TranslatorLoaderInterface;
-use Gettext\Translator;
-use Gettext\TranslatorInterface;
-use InvalidArgumentException;
+use Chevere\Translate\Interfaces\TranslatorInterface;
 
-final class TranslatorLoader implements TranslatorLoaderInterface
+final class TranslatorLoader
 {
+    private TranslatorInterface $translator;
+
     public function __construct(
-        private DirectoryInterface $directory
     ) {
-        $this->directory->assertExists();
+        $this->translator = new Translator();
     }
 
-    public function getTranslator(string $locale, string $domain = ''): TranslatorInterface
-    {
+    public function withLoad(
+        DirectoryInterface $directory,
+        string $locale,
+        string $domain = ''
+    ): self {
+        $new = clone $this;
         $directory = match ($domain) {
-            '' => $this->directory,
-            default => $this->directory->getChild($locale . '/'),
+            '' => $directory,
+            default => $directory->getChild($locale . '/'),
         };
-        if (! $directory->exists()) {
-            throw new InvalidArgumentException(
-                sprintf("Directory `%s` doesn't exits", $directory->path())
-            );
-        }
+        $directory->assertExists();
         $filename = match ($domain) {
             '' => "{$locale}.php",
             default => "{$domain}.php",
@@ -47,13 +45,14 @@ final class TranslatorLoader implements TranslatorLoaderInterface
             $directory->path()
                 ->getChild($filename)
         );
-        if (! $file->exists()) {
-            throw new InvalidArgumentException(
-                sprintf("File `%s` doesn't exits", $file->path())
-            );
-        }
+        $file->assertExists();
+        $new->translator = $new->translator->withLoad($file->path()->__toString());
 
-        return (new Translator())
-            ->loadTranslations($file->path()->__toString());
+        return $new;
+    }
+
+    public function translator(): TranslatorInterface
+    {
+        return $this->translator;
     }
 }

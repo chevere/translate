@@ -13,10 +13,9 @@ declare(strict_types=1);
 
 namespace Chevere\Tests;
 
+use Chevere\Translate\Translator;
 use Chevere\Translate\TranslatorInstance;
-use Chevere\Translate\TranslatorLoader;
 use PHPUnit\Framework\TestCase;
-use function Chevere\Filesystem\directoryForPath;
 use function Chevere\Translate\__;
 use function Chevere\Translate\__n;
 use function Chevere\Translate\__np;
@@ -36,8 +35,23 @@ final class TranslatorFunctionsTest extends TestCase
 
     public function testTranslator(): void
     {
-        $loader = new TranslatorLoader(directoryForPath(__DIR__ . '/_resources/compiled/'));
-        new TranslatorInstance($loader->getTranslator('es-CL', 'messages'));
+        $translator = (new Translator())->withAdd(
+            [
+                '' => [
+                    'Language' => 'Idiomas',
+                    '%s\'s Images' => 'Imágenes de %s',
+                    'image' => [
+                        0 => 'imagen',
+                        1 => 'imágenes',
+                    ],
+                    '%d second' => [
+                        0 => '%d segundo',
+                        1 => '%d segundos',
+                    ],
+                ],
+            ],
+        );
+        new TranslatorInstance($translator);
         $this->assertSame('Idiomas', __('Language'));
         $this->assertSame('imagen', __n('image', 'images', 1));
         $this->assertSame(
@@ -48,8 +62,32 @@ final class TranslatorFunctionsTest extends TestCase
 
     public function testContextTranslator(): void
     {
-        $loader = new TranslatorLoader(directoryForPath(__DIR__ . '/_resources/compiled/'));
-        new TranslatorInstance($loader->getTranslator('es-CL', 'messages'));
+        $translator = (new Translator())->withAdd(
+            [
+                '' => [
+                    'Language' => 'Idiomas',
+                    '%s\'s Images' => 'Imágenes de %s',
+                    'image' => [
+                        0 => 'imagen',
+                        1 => 'imágenes',
+                    ],
+                    '%d second' => [
+                        0 => '%d segundo',
+                        1 => '%d segundos',
+                    ],
+                ],
+                'menu' => [
+                    'Language' => 'Idioma',
+                ],
+                'upload' => [
+                    '%d file' => [
+                        0 => '%d archivo',
+                        1 => '%d archivos',
+                    ],
+                ],
+            ],
+        );
+        new TranslatorInstance($translator);
         $this->assertSame('Idioma', __p('menu', 'Language'));
         $this->assertSame('Idiomas', __('Language'));
         $this->assertSame('Language', __p('404', 'Language'));
