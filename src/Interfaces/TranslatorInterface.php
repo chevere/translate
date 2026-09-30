@@ -27,6 +27,8 @@ interface TranslatorInterface extends GettextTranslatorInterface
 
     /**
      * Add new translations to the dictionary.
+     *
+     * @param array<string, array<string, mixed>> $messages The messages to add.
      */
     public function withAdd(array $messages, string $pluralForms = '', string $domain = ''): self;
 
