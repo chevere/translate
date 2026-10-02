@@ -60,6 +60,7 @@ final class TranslatorTest extends TestCase
         );
         $this->assertSame(
             [
+                'domain' => $with->domain(),
                 'plurals' => $with->plurals(),
                 'dictionary' => $with->dictionary(),
             ],

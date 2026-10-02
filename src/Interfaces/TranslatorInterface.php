@@ -37,6 +37,11 @@ interface TranslatorInterface extends GettextTranslatorInterface, IteratorAggreg
     public function withAdd(array $messages, string $pluralForms = '', string $domain = ''): self;
 
     /**
+     * @return string The default domain.
+     */
+    public function domain(): string;
+
+    /**
      * @return array{string, array<string, array<string, mixed>>} Dictionary indexed by domain => context => messages.
      */
     public function dictionary(): array;

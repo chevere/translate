@@ -55,6 +55,11 @@ final class Translator extends GettextTranslator implements TranslatorInterface
         return $new;
     }
 
+    public function domain(): string
+    {
+        return $this->domain;
+    }
+
     public function dictionary(): array
     {
         return $this->dictionary;
@@ -67,6 +72,7 @@ final class Translator extends GettextTranslator implements TranslatorInterface
 
     public function getIterator(): Traversable
     {
+        yield 'domain' => $this->domain;
         yield 'plurals' => $this->plurals;
         yield 'dictionary' => $this->dictionary;
     }
