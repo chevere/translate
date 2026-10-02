@@ -53,3 +53,31 @@ function __np(string $context, string $singular, string $plural, int $count): st
 {
     return translator()->npgettext($context, $singular, $plural, $count);
 }
+/**
+ * Translates a string within a specific domain.
+ */
+function __d(string $domain, string $message): string
+{
+    return translator()->dgettext($domain, $message);
+}
+/**
+ * Translates a plural string within a specific domain.
+ */
+function __dn(string $domain, string $singular, string $plural, int $count): string
+{
+    return translator()->dngettext($domain, $singular, $plural, $count);
+}
+/**
+ * Translates a string within a specific domain and context.
+ */
+function __dp(string $domain, string $context, string $message): string
+{
+    return translator()->dpgettext($domain, $context, $message);
+}
+/**
+ * Translates a plural string within a specific domain and context.
+ */
+function __dnp(string $domain, string $context, string $singular, string $plural, int $count): string
+{
+    return translator()->dnpgettext($domain, $context, $singular, $plural, $count);
+}
