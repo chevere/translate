@@ -19,6 +19,24 @@ use function Chevere\Filesystem\filePhpReturnForPath;
 
 final class TranslatorTest extends TestCase
 {
+    public function testEmpty(): void
+    {
+        $translator = new Translator();
+        $this->assertSame('', $translator->domain());
+        $this->assertSame([], $translator->dictionary());
+        $this->assertSame([], $translator->pluralForms());
+        $this->assertSame([], $translator->plurals());
+        $this->assertSame(
+            [
+                'domain' => $translator->domain(),
+                'plural-forms' => $translator->pluralForms(),
+                'plurals' => $translator->plurals(),
+                'dictionary' => $translator->dictionary(),
+            ],
+            [...$translator]
+        );
+    }
+
     public function testWithLoad(): void
     {
         $translator = new Translator();
@@ -26,6 +44,21 @@ final class TranslatorTest extends TestCase
         $with = $translator->withLoad($file);
         $this->assertNotSame($translator, $with);
         $this->assertSame('Idiomas', $with->gettext('Language'));
+        $this->assertSame(
+            [
+                '' => [
+                    'count' => 2,
+                    'code' => 'return ($n != 1);',
+                ],
+            ],
+            $with->plurals()
+        );
+        $this->assertSame(
+            [
+                '' => 'nplurals=2; plural=(n != 1);',
+            ],
+            $with->pluralForms()
+        );
     }
 
     public function testWithAdd(): void
@@ -51,16 +84,14 @@ final class TranslatorTest extends TestCase
         );
         $this->assertSame(
             [
-                'domain' => [
-                    'count' => 2,
-                    'code' => 'return ($n != 1);',
-                ],
+                'domain' => $add['pluralForms'],
             ],
-            $with->plurals()
+            $with->pluralForms()
         );
         $this->assertSame(
             [
                 'domain' => $with->domain(),
+                'plural-forms' => $with->pluralForms(),
                 'plurals' => $with->plurals(),
                 'dictionary' => $with->dictionary(),
             ],

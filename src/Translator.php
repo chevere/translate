@@ -21,6 +21,30 @@ use Traversable;
 
 final class Translator extends GettextTranslator implements TranslatorInterface
 {
+    /**
+     * @var array<string, string>
+     */
+    private array $pluralForms = [];
+
+    /**
+     * @param array<mixed> $translations
+     */
+    public function addTranslations(array $translations): self
+    {
+        $domain = $translations['domain'] ?? '';
+        $pluralForms = $translations['plural-forms'] ?? '';
+        if (is_string($domain)
+            && is_string($pluralForms)
+            && $pluralForms !== ''
+            && ! isset($this->dictionary[$domain])
+        ) {
+            $this->pluralForms[$domain] = $pluralForms;
+        }
+        parent::addTranslations($translations);
+
+        return $this;
+    }
+
     public function withLoad(FilePhpReturnInterface ...$file): TranslatorInterface
     {
         $new = clone $this;
@@ -57,12 +81,17 @@ final class Translator extends GettextTranslator implements TranslatorInterface
 
     public function domain(): string
     {
-        return $this->domain;
+        return $this->domain ?? '';
     }
 
     public function dictionary(): array
     {
         return $this->dictionary;
+    }
+
+    public function pluralForms(): array
+    {
+        return $this->pluralForms;
     }
 
     public function plurals(): array
@@ -72,7 +101,8 @@ final class Translator extends GettextTranslator implements TranslatorInterface
 
     public function getIterator(): Traversable
     {
-        yield 'domain' => $this->domain;
+        yield 'domain' => $this->domain();
+        yield 'plural-forms' => $this->pluralForms;
         yield 'plurals' => $this->plurals;
         yield 'dictionary' => $this->dictionary;
     }
