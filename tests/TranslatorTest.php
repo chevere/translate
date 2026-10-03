@@ -25,12 +25,10 @@ final class TranslatorTest extends TestCase
         $this->assertSame('', $translator->domain());
         $this->assertSame([], $translator->dictionary());
         $this->assertSame([], $translator->pluralForms());
-        $this->assertSame([], $translator->plurals());
         $this->assertSame(
             [
                 'domain' => $translator->domain(),
                 'plural-forms' => $translator->pluralForms(),
-                'plurals' => $translator->plurals(),
                 'dictionary' => $translator->dictionary(),
             ],
             [...$translator]
@@ -44,15 +42,6 @@ final class TranslatorTest extends TestCase
         $with = $translator->withLoad($file);
         $this->assertNotSame($translator, $with);
         $this->assertSame('Idiomas', $with->gettext('Language'));
-        $this->assertSame(
-            [
-                '' => [
-                    'count' => 2,
-                    'code' => 'return ($n != 1);',
-                ],
-            ],
-            $with->plurals()
-        );
         $this->assertSame(
             [
                 '' => 'nplurals=2; plural=(n != 1);',
@@ -92,7 +81,6 @@ final class TranslatorTest extends TestCase
             [
                 'domain' => $with->domain(),
                 'plural-forms' => $with->pluralForms(),
-                'plurals' => $with->plurals(),
                 'dictionary' => $with->dictionary(),
             ],
             [...$with]

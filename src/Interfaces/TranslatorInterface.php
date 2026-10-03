@@ -21,7 +21,7 @@ use Traversable;
 /**
  * Describes the component in charge of providing translator tooling.
  *
- * @extends IteratorAggregate<'domain'|'plural-forms'|'plurals'|'dictionary', string|array<string, string>|array<string, array{count: int, code: string}>|array<string, array<string, array<string, string|array<string>>>>>
+ * @extends IteratorAggregate<'domain'|'plural-forms'|'dictionary', string|array<string, string>|array<string, array{count: int, code: string}>|array<string, array<string, array<string, string|array<string>>>>>
  */
 interface TranslatorInterface extends GettextTranslatorInterface, IteratorAggregate
 {
@@ -48,17 +48,12 @@ interface TranslatorInterface extends GettextTranslatorInterface, IteratorAggreg
     public function dictionary(): array;
 
     /**
-     * @return array<string, array{count: int, code: string}> Plural rules indexed by domain.
-     */
-    public function plurals(): array;
-
-    /**
      * @return array<string, string> Plural-Forms as defined in the .po header, indexed by domain.
      */
     public function pluralForms(): array;
 
     /**
-     * Yields `domain` => string, `plurals` => plurals(), `plural-forms` => pluralForms(), `dictionary` => dictionary().
+     * Yields `domain` => string, `plural-forms` => pluralForms(), `dictionary` => dictionary().
      */
     public function getIterator(): Traversable;
 }

@@ -94,16 +94,10 @@ final class Translator extends GettextTranslator implements TranslatorInterface
         return $this->pluralForms;
     }
 
-    public function plurals(): array
-    {
-        return $this->plurals;
-    }
-
     public function getIterator(): Traversable
     {
         yield 'domain' => $this->domain();
         yield 'plural-forms' => $this->pluralForms;
-        yield 'plurals' => $this->plurals;
         yield 'dictionary' => $this->dictionary;
     }
 }
