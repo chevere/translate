@@ -17,7 +17,6 @@ use Chevere\Filesystem\Interfaces\FilePhpReturnInterface;
 use Chevere\Translate\Interfaces\TranslatorInterface;
 use Gettext\Translator as GettextTranslator;
 use InvalidArgumentException;
-use Traversable;
 
 final class Translator extends GettextTranslator implements TranslatorInterface
 {
@@ -94,10 +93,12 @@ final class Translator extends GettextTranslator implements TranslatorInterface
         return $this->pluralForms;
     }
 
-    public function getIterator(): Traversable
+    public function toArray(): array
     {
-        yield 'domain' => $this->domain();
-        yield 'plural-forms' => $this->pluralForms;
-        yield 'dictionary' => $this->dictionary;
+        return [
+            'domain' => $this->domain(),
+            'plural-forms' => $this->pluralForms,
+            'dictionary' => $this->dictionary,
+        ];
     }
 }

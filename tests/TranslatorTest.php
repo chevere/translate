@@ -31,7 +31,7 @@ final class TranslatorTest extends TestCase
                 'plural-forms' => $translator->pluralForms(),
                 'dictionary' => $translator->dictionary(),
             ],
-            [...$translator]
+            $translator->toArray()
         );
     }
 
@@ -83,7 +83,7 @@ final class TranslatorTest extends TestCase
                 'plural-forms' => $with->pluralForms(),
                 'dictionary' => $with->dictionary(),
             ],
-            [...$with]
+            $with->toArray()
         );
     }
 
