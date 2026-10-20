@@ -114,18 +114,27 @@ final class PoMakerTest extends TestCase
         DirectoryInterface $directory,
         FileInterface $poFile,
     ): void {
+        $files = [
+            "- File {$directory->path()}file.php",
+            "- File {$directory->path()}dir/file.php",
+            "- File {$directory->path()}file.js",
+        ];
+        $lines = explode("\n", $writer->__toString());
+        $actualFiles = array_slice($lines, 1, count($files));
+        sort($actualFiles);
+        sort($files);
+        $this->assertSame($files, $actualFiles);
         $this->assertSame(
-            <<<PLAIN
-            Starting directory scan at {$directory->path()}
-            - File {$directory->path()}file.php
-            - File {$directory->path()}dir/file.php
-            - File {$directory->path()}file.js
-            [OK] Directory scan completed
-            [OK] PO file generated at {$poFile->path()}
-
-            PLAIN
-            ,
-            $writer->__toString()
+            [
+                "Starting directory scan at {$directory->path()}",
+                '[OK] Directory scan completed',
+                "[OK] PO file generated at {$poFile->path()}",
+                '',
+            ],
+            [
+                $lines[0],
+                ...array_slice($lines, 1 + count($files)),
+            ]
         );
     }
 
